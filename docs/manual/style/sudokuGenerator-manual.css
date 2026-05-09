@@ -1,0 +1,152 @@
+/**********************************************************************\
+
+Styles for SudokuGenerator manual
+
+\**********************************************************************/
+
+@import url("blankaspect-manual.css");
+
+dl.fileAssoc {
+  margin: 0.5em 1.0em;
+}
+dl.fileAssoc dt {
+  font-weight: bold;
+  padding: 0.3em 0.5em 0 0;
+}
+dl.fileAssoc dd {
+  margin: 0 1.6em;
+  padding: 0 0.5em 0.3em 0;
+}
+
+dl.sysProperties {
+  margin: 0.5em;
+}
+dl.sysProperties dt {
+  font-family: monospace;
+  font-weight: bold;
+  padding: 0.3em 0.5em 0 0;
+}
+dl.sysProperties dt.multi {
+  line-height: 125%;
+}
+
+dl.sysProperties dd {
+  margin: 0 1.6em;
+  padding: 0.2em 0.5em 0.3em 0;
+}
+
+dl.terminology {
+  border: 1px solid;
+  margin-top: 1.0em;
+  margin-bottom: 1.0em;
+  padding: 0.3em 1.2em;
+}
+dl.terminology dt {
+  font-weight: bold;
+  padding: 0.3em 0.5em 0 0;
+}
+dl.terminology dd {
+  margin: 0 2.0em;
+  padding: 0 0.5em 0.3em 0;
+}
+dl.terminology dd ul {
+  margin: 0.1em 2.0em;
+  padding: 0;
+}
+
+span.asterisk {
+  font-family: "Roboto Mono", monospace;
+  font-size: 115%;
+  padding: 0 0.2em;
+}
+
+table.twoColumnShaded {
+  margin-left: 2.0em;
+  margin-right: 2.0em;
+}
+table.twoColumnShaded td {
+  border: 1px solid;
+  padding: 0.1em 0.6em;
+}
+table.twoColumnShaded td.shaded {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --definition-color: #804018;
+    --sys-property-color: #A04000;
+  }
+
+  .sysProperty {
+    color: var(--sys-property-color);
+  }
+
+  a.definition {
+    color: var(--definition-color);
+  }
+
+  dl.sysProperties dt {
+    color: var(--sys-property-color);
+  }
+
+  dl.terminology {
+    background-color: #FCFAE8;
+    border-color: #E8E6CC;
+  }
+  dl.terminology dt {
+    color: var(--definition-color);
+  }
+
+  span.asterisk {
+    color: #003070;
+  }
+
+  table.twoColumnShaded td {
+    border-color: #B4B8C8;
+  }
+  table.twoColumnShaded td.shaded {
+    background-color: #F8F6E0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --definition-color: #E0A880;
+    --sys-property-color: #90C0A8;
+  }
+
+  .sysProperty {
+    color: var(--sys-property-color);
+  }
+
+  a.definition {
+    color: var(--definition-color);
+  }
+
+  dl.sysProperties dt {
+    color: var(--sys-property-color);
+  }
+
+  dl.terminology {
+    background-color: #20242C;
+    border-color: #404850;
+  }
+  dl.terminology dt {
+    color: var(--definition-color);
+  }
+
+  span.asterisk {
+    color: #A0F8A0;
+  }
+
+  table.twoColumnShaded td {
+    border-color: #606888;
+  }
+  table.twoColumnShaded td.shaded {
+    background-color: #382420;
+  }
+}
+
+/*--------------------------------------------------------------------*/

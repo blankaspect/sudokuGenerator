@@ -1,0 +1,2411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+   PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html
+   xmlns="http://www.w3.org/1999/xhtml"
+   xml:lang="en">
+
+  <head>
+    <meta
+       http-equiv="content-type"
+       content="application/xhtml+xml;charset=UTF-8"/>
+    <meta
+       content="initial-scale=1"
+       name="viewport"/>
+    <title>SudokuGenerator : manual</title>
+    <link
+       href="style/blankaspect-common.css"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="style/blankaspect-manual.css"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="style/sudokuGenerator-manual.css"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="images/icon-48x48.png"
+       rel="icon"/>
+    <script
+       src="scripts/Toc.js"
+       type="text/javascript">
+    </script>
+    <script
+       src="scripts/init.js"
+       type="text/javascript">
+    </script>
+  </head>
+
+  <body>
+
+    <!-- Title -->
+
+    <div id="title">
+      <div>
+        <img alt="Icon" src="images/icon-48x48.png"/>
+      </div>
+      <div>
+        SudokuGenerator : manual
+      </div>
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Table of contents -->
+
+    <div class="section">
+      <h2 id="toc">Table of contents</h2>
+      <div id="tocRoot">
+        <div class="wrap" id="tocPlaceholder">
+          You must have JavaScript enabled in your browser to generate the table of contents.
+        </div>
+      </div>
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Introduction -->
+
+    <div class="section">
+      <h2 id="section1">1&nbsp; Introduction</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        SudokuGenerator is a <a class="external"
+        href="https://en.wikipedia.org/wiki/JavaFX">JavaFX</a> application whose main purpose
+        is, as its name suggests, to generate <a class="external"
+        href="https://en.wikipedia.org/wiki/Sudoku">sudoku</a> puzzles.
+      </p>
+
+      <h3 id="section1-1">1.1&nbsp; Features</h3>
+
+      <p class="wrap">
+        SudokuGenerator has the following features:
+      </p>
+      <ul class="list">
+        <li class="spaced">
+          <div class="wrap">
+            You can generate puzzles with the following <a class="definition"
+            href="#def-grid">grid</a> sizes:
+          </div>
+          <ul class="continuationList">
+            <li class="wrap">
+              4&nbsp;&times;&nbsp;4 <a class="definition" href="#def-cell">cells</a>
+            </li>
+            <li class="wrap">
+              9&nbsp;&times;&nbsp;9 cells
+            </li>
+            <li class="wrap">
+              16&nbsp;&times;&nbsp;16 cells
+            </li>
+            <li class="wrap">
+              25&nbsp;&times;&nbsp;25 cells
+            </li>
+          </ul>
+        </li>
+        <li class="spaced wrap">
+          You can generate a puzzle either by specifying the number of cells that should
+          initially contain <a class="definition" href="#def-symbol">symbols</a> or by supplying
+          a <a class="definition" href="#def-template">template</a> of such cells.
+        </li>
+        <li class="spaced wrap">
+          The application has an editor for creating and modifying a template that can be used
+          to generate a puzzle.  Templates may be created with several kinds of rotational and
+          reflectional symmetry.
+        </li>
+        <li class="spaced wrap">
+          After you&apos;ve generated a puzzle, you can start to solve it in the puzzle editor,
+          where you can use the keyboard or mouse to edit <a class="definition"
+          href="#def-gridEntry">grid entries</a>.  The editor has an undo/redo facility.
+        </li>
+        <li class="spaced wrap">
+          You can enter a puzzle from an external source in the editor.  You can enter a puzzle
+          by typing its entries into an empty grid or by pasting text in a <a
+          href="#sectionD">simple format</a>.
+        </li>
+        <li class="spaced wrap">
+          You can save a puzzle to a file and load it later.  You can open a puzzle file with a
+          command or by drag-and-drop.
+        </li>
+        <li class="spaced wrap">
+          Multiple puzzles may be open simultaneously in the application, and you can switch
+          easily between them.
+        </li>
+        <li class="spaced wrap">
+          There is a command to duplicate the current puzzle so that, after you&apos;ve
+          generated or loaded a puzzle, you can solve a copy of it in the editor without
+          modifying the original.
+        </li>
+        <li class="spaced wrap">
+          When you&apos;re solving a puzzle, the application can check whether the current
+          entries will yield a unique solution.  It can also assist you by finding the correct
+          entry for an empty cell that you&apos;ve selected.
+        </li>
+        <li class="spaced wrap">
+          The application can solve a <a class="definition"
+          href="#def-wellPosedPuzzle">well-posed puzzle</a> and display the solution.  It can
+          find and display multiple solutions for a <a class="definition"
+          href="#def-validPuzzle">valid puzzle</a> that is not well-posed.
+        </li>
+        <li class="spaced wrap">
+          You can transform a puzzle by flipping it horizontally or vertically, or by rotating
+          it by 90&deg; or 180&deg; (a quarter-turn or a half-turn).  A well-posed puzzle will
+          remain well-posed after such a transformation.
+        </li>
+        <li class="spaced wrap">
+          You can copy a textual representation of the current puzzle or an image of the puzzle
+          to the system clipboard.
+        </li>
+        <li class="spaced wrap">
+          You can export one or more puzzles to an HTML document.  If you export multiple
+          puzzles, they will be arranged in a table with a selectable number of columns.
+        </li>
+        <li class="spaced wrap">
+          There is a modeless directory-browser window in which you can display an overview of
+          the puzzles and/or templates in a chosen directory in tabular form.  You can select
+          multiple files in the browser and open them in the main window or export them to an
+          HTML document.
+        </li>
+      </ul>
+
+      <h3 id="section1-2">1.2&nbsp; Licence</h3>
+
+      <p class="wrap">
+        SudokuGenerator is made available under three licences:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          The contents of the <code>uk.blankaspect.sudokugenerator</code> package (including
+          resources) may be used under the terms and conditions of version 3 of the <a
+          class="external" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public
+          License</a>.
+        </li>
+        <li class="spaced wrap">
+          The Roboto Mono fonts may be used under the terms and conditions of version 1.1 of the
+          <a class="external"
+          href="https://openfontlicense.org/open-font-license-official-text/">SIL Open Font
+          License</a>.
+        </li>
+        <li class="spaced wrap">
+          All other contents of the <a
+          href="https://github.com/blankaspect/sudokuGenerator">blankaspect/sudokuGenerator</a>
+          repository may be used under the terms and conditions of the <a class="external"
+          href="https://mit-license.org/">MIT License</a>.
+        </li>
+      </ul>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Building and running the application -->
+
+    <div class="section">
+      <h2 id="section2">2&nbsp; Building and running the application</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        This section assumes that you have some experience of building and running a Java
+        application.
+      </p>
+
+      <h3 id="section2-1">2.1&nbsp; Building the application</h3>
+
+      <p class="wrap">
+        The following software is required to build SudokuGenerator:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          A Java Development Kit (JDK) that supports Java 17, such as <a class="external"
+          href="https://adoptium.net/">Eclipse Temurin from Adoptium</a>.
+        </li>
+        <li class="spaced">
+          <div class="wrap">
+            The following JavaFX modules:
+          </div>
+          <ul class="continuationList">
+            <li class="wrap">
+              <code>javafx.base</code>
+            </li>
+            <li class="wrap">
+              <code>javafx.controls</code>
+            </li>
+            <li class="wrap">
+              <code>javafx.graphics</code>
+            </li>
+            <li class="wrap">
+              <code>javafx.swing</code>
+            </li>
+          </ul>
+          <div class="wrap">
+            The JavaFX modules must be compatible with the JDK.  The modules may be supplied as
+            JMOD files for compiling and linking, or the contents of the modules may be supplied
+            by JAR files from the JavaFX software development kit (SDK).  The JavaFX JMODs and
+            SDK are available from <a class="external" href="https://openjfx.io/">OpenJFX</a>.
+          </div>
+          <div class="wrap">
+            If you&apos;re building with Gradle or Maven, JavaFX artifacts are available from <a
+            class="external"
+            href="https://central.sonatype.com/artifact/org.openjfx/javafx">Maven Central</a>.
+          </div>
+        </li>
+      </ul>
+      <p class="wrap">
+        The <code>src</code> directory of the <a
+        href="https://github.com/blankaspect/sudokuGenerator">blankaspect/sudokuGenerator</a>
+        repository contains the source code and resources that constitute the application; there
+        are no external dependencies apart from JavaFX.  The directory conforms to the Maven
+        standard directory layout: the source code is in <code>src/main/java</code> and the
+        resources are in <code>src/main/resources</code>.
+      </p>
+      <p class="noBottomMargin wrap">
+        The supplied Kotlin-DSL-based <a class="external" href="https://gradle.org/">Gradle</a>
+        build script, <code>build.gradle.kts</code>, modifies the <code>compileJava</code> and
+        <code>jar</code> tasks (provided by the <code>java</code> plug-in) to compile the
+        application and to create an executable JAR file for it.  The <code>compileJava</code>
+        task expects the required JavaFX modules to be supplied by a JavaFX SDK whose location
+        is specified by the <code>JAVAFX_HOME</code> environment variable.  If this is
+        unsuitable, you could modify the build script in one of the following ways:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          replace the local dependency on a JavaFX SDK with an external dependency on a <a
+          class="external"
+          href="https://central.sonatype.com/artifact/org.openjfx/javafx">JavaFX artifact</a>
+          from a repository, or
+        </li>
+        <li class="wrap">
+          use the <a class="external"
+          href="https://plugins.gradle.org/plugin/org.openjfx.javafxplugin">JavaFX Gradle
+          plug-in</a>.
+        </li>
+      </ul>
+
+      <h3 id="section2-2">2.2&nbsp; Running the application</h3>
+
+      <p class="wrap">
+        A Java Runtime Environment (JRE) and the JavaFX modules listed above are required to run
+        SudokuGenerator.  A Java Development Kit (JDK) includes a JRE.  The JavaFX modules may
+        be provided by separate JAR files or they may be included in a JRE:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          If you run SudokuGenerator with a JRE that does not contain JavaFX modules, the
+          location and names of the modules must be specified with the
+          <code>--module-path</code> and <code>--add-modules</code> options on the command line
+          of the Java launcher.
+        </li>
+        <li class="spaced wrap">
+          You can avoid the use of the command-line options if you run SudokuGenerator with a
+          JRE that contains JavaFX modules.  JavaFX modules are included in some third-party
+          JREs, such as the <a class="external" href="https://www.azul.com/downloads/">Azul Zulu
+          JRE FX packages</a>, or you can use the <code>jlink</code> tool from a JDK to create a
+          JRE that contains a custom set of Java SE, JDK and JavaFX modules.  The <a
+          href="https://github.com/blankaspect/makejre">blankaspect/makejre</a> repository
+          contains a Bash script and a PowerShell 7 script that may be used to create a JRE with
+          <code>jlink</code>.
+        </li>
+      </ul>
+      <p class="wrap">
+        The supplied Kotlin-DSL-based Gradle build script, <code>build.gradle.kts</code>,
+        defines four tasks that may be used to run SudokuGenerator:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          The <code>runMain</code> and <code>runJar</code> tasks require the JavaFX modules to
+          be supplied by a JavaFX SDK whose location is specified by the
+          <code>JAVAFX_HOME</code> environment variable.
+        </li>
+        <li class="spaced wrap">
+          The <code>runMainJre</code> and <code>runJarJre</code> tasks require a JRE that
+          includes JavaFX modules.  The tasks expect the location of the JRE to be specified by
+          the <code>JRE_DIR</code> environment variable.
+        </li>
+      </ul>
+      <dl class="basic">
+        <dt>runMain</dt>
+        <dd class="wrap">
+          Runs the main class from the class files that were generated by the
+          <code>compileJava</code> task.
+        </dd>
+        <dt>runMainJre</dt>
+        <dd class="wrap">
+          Runs the main class from the class files that were generated by the
+          <code>compileJava</code> task.  The class is run with a Java launcher from a JRE that
+          includes JavaFX modules.
+        </dd>
+        <dt>runJar</dt>
+        <dd class="wrap">
+          Runs the executable JAR that was generated by the <code>jar</code> task.
+        </dd>
+        <dt>runJarJre</dt>
+        <dd class="wrap">
+          Runs the executable JAR that was generated by the <code>jar</code> task.  The JAR is
+          run with a Java launcher from a JRE that includes JavaFX modules.
+        </dd>
+      </dl>
+      <p class="wrap">
+        All four tasks extend the <code>JavaExec</code> task.
+      </p>
+
+      <h4 id="section2-2-1">2.2.1&nbsp; Single instance of the application vs multiple instances</h4>
+      <p class="wrap">
+        By default, when SudokuGenerator starts up, it seeks another running instance of the
+        application through a local port.  If it finds one, it transmits the locations of any
+        files that were specified on its command line to the other instance, then it terminates.
+        If it doesn&apos;t find another instance of the application, it becomes the primary
+        instance of SudokuGenerator: it listens on the port for the locations of files from
+        other instances of the application when they start up, and it opens any file whose
+        location it receives.  However, if the <code>independentInstance</code> system property
+        is <code>true</code> when an instance of SudokuGenerator is launched, it will run
+        independently of other instances of the application, neither transmitting nor receiving
+        the locations of files to or from another instance.  The system property may be set on
+        the command line of the Java launcher (<code>java</code> or <code>javaw</code>) with the
+        <code>-D</code> option:
+      </p>
+      <div class="example monospace">
+        -DindependentInstance=true
+      </div>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Configuration -->
+
+    <div class="section">
+      <h2 id="section3">3&nbsp; Configuration</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        When it starts up, SudokuGenerator is configured from an optional configuration file
+        named <code>sudokuGenerator-config.json</code> whose location may be specified
+        explicitly or implicitly.  The configuration file is a text file in JSON (JavaScript
+        Object Notation) format that is laid out to make it easy for humans to read.  A default
+        value is used for a property that isn&apos;t explicitly defined in the configuration
+        file.
+      </p>
+      <p class="noBottomMargin wrap">
+        The location and use of a configuration file are controlled by two system properties:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          <code>blankaspect.app.auxDir</code>
+        </li>
+        <li class="wrap">
+          <code>blankaspect.app.noConfigFile</code>
+        </li>
+      </ul>
+      <p class="noBottomMargin wrap">
+        The system properties may be set on the command line of the Java launcher
+        (<code>java</code> or <code>javaw</code>) with the <code>-D</code> option.
+      </p>
+
+      <h3 id="section3-1">3.1&nbsp; The <code>blankaspect.app.auxDir</code> system property</h3>
+
+      <p class="wrap">
+        The <code>blankaspect.app.auxDir</code> system property specifies, explicitly or
+        implicitly, the directory that contains the configuration file.
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          If the value of the <code>blankaspect.app.auxDir</code> system property is an empty
+          string, SudokuGenerator will look for a configuration file in the current working
+          directory, which depends on the system and the way in which the application was run.
+          (On Unix-like systems, the working directory is denoted by the environment variable
+          <code>PWD</code>.)
+        </li>
+        <li class="spaced">
+          <div class="wrap">
+            If the value of the <code>blankaspect.app.auxDir</code> system property is not an
+            empty string, it will be taken as the location of a directory that contains a
+            configuration file.  If the location denotes an existing directory, SudokuGenerator
+            will look for a configuration file in that directory.
+          </div>
+          <div class="wrap">
+            The value of the system property may contain <a href="#sectionB">special
+            constructs</a> for system properties, environment variables and the user&apos;s home
+            directory.
+          </div>
+        </li>
+        <li class="spaced">
+          <div class="wrap">
+            If the <code>blankaspect.app.auxDir</code> system property does not exist,
+            SudokuGenerator will look for a configuration file in the default directory:
+          </div>
+          <ul class="list">
+            <li class="spaced wrap">
+              On Unix-like systems, the default directory is
+              <code>$HOME/.blankaspect/sudokuGenerator</code>, where <code>HOME</code> is the
+              environment variable that denotes the user&apos;s home directory.
+            </li>
+            <li class="spaced wrap">
+              On Windows, the default directory is
+              <code>%APPDATA%\blankaspect\sudokuGenerator</code>, where <code>APPDATA</code> is
+              an environment variable that denotes a subdirectory of the user&apos;s home
+              directory named <code>AppData</code>.
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <p class="wrap">
+        After the location of the directory is determined in the way described above, if the
+        directory does not exist or it does not contain a configuration file, default values
+        will be used for the configuration properties.
+      </p>
+      <p class="wrap">
+        If the configuration has changed when you exit the application normally (ie, using the
+        <a class="command" href="#section7-2">Exit</a> command or an equivalent), the
+        configuration will be written to a configuration file unless the writing of the file is
+        suppressed by the <a href="#section3-2"><code>blankaspect.app.noConfigFile</code> system
+        property</a>.  If the writing of a configuration file is allowed, a file will be written
+        to the directory whose location is determined in the way described above.
+      </p>
+
+      <h3 id="section3-2">3.2&nbsp; The <code>blankaspect.app.noConfigFile</code> system property</h3>
+
+      <p class="wrap">
+        If the system property <code>blankaspect.app.noConfigFile</code> exists and its value is
+        <code>true</code>, no configuration file will be read when SudokuGenerator starts up,
+        default values will be used for the configuration properties and no configuration file
+        will be written when the application terminates.
+      </p>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- The display -->
+
+    <div class="section">
+      <h2 id="section4">4&nbsp; The display</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <h3 id="section4-1">4.1&nbsp; The main window</h3>
+
+      <p class="noBottomMargin wrap">
+        The main window displays a view of a puzzle that has been created with the <a
+        class="command" href="#section5-1-1">File &gt; New</a> command or loaded from a file,
+        and it allows the puzzle to be edited.  The window contains the following components,
+        from top to bottom:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          a <a href="#section4-1-1">menu bar</a>,
+        </li>
+        <li class="wrap">
+          a <a href="#section4-1-2">pathname bar</a>,
+        </li>
+        <li class="wrap">
+          a <a href="#section4-1-3">spinner</a> for selecting a puzzle and a button for closing
+          the current puzzle,
+        </li>
+        <li class="wrap">
+          a <a href="#section4-1-4">view of the current puzzle</a>, and
+        </li>
+        <li class="wrap">
+          a <a href="#section4-1-5">status bar</a>.
+        </li>
+      </ul>
+
+      <h4 id="section4-1-1">4.1.1&nbsp; The menu bar</h4>
+      <p class="wrap">
+        The menus in the menu bar provide access to the main commands of the application.
+        Several of the commands in the menus can be issued by key combinations.  The <span
+        class="component">View</span> menu and <span class="component">Puzzle</span> menu are
+        disabled if no puzzle is open in the application.
+      </p>
+
+      <h4 id="section4-1-2">4.1.2&nbsp; The pathname bar</h4>
+      <p class="wrap">
+        The pathname bar shows the location of the file that is associated with the current
+        puzzle, if the puzzle has been loaded from or saved to a file.  The square at the left
+        of the pathname bar is highlighted if any unsaved changes have been made to the current
+        puzzle.
+      </p>
+
+      <h4 id="section4-1-3">4.1.3&nbsp; The puzzle spinner and <i>close</i> button</h4>
+      <p class="noBottomMargin wrap">
+        The spinner is actually a combined spinner and drop-down list that can be used to
+        navigate the list of documents that are open in SudokuGenerator.  Pressing the primary
+        mouse button on a component of the spinner has the following effect:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          <i>Left arrow button</i> : move backwards cyclically through the list of open
+          documents.
+        </li>
+        <li class="wrap">
+          <i>Central label</i> : display a drop-down list of the open documents.
+        </li>
+        <li class="wrap">
+          <i>Right arrow button</i> : move forwards cyclically through the list of open
+          documents.
+        </li>
+      </ul>
+      <p class="wrap">
+        If no puzzle is open in the application, the spinner is disabled and its central label
+        contains the text &quot;No puzzles&quot;.
+      </p>
+      <p class="wrap">
+        To the right of the spinner is a button that closes the current puzzle.  If the puzzle
+        has unsaved changes, a warning dialog is displayed in which you are asked to confirm the
+        closure of the puzzle.
+      </p>
+
+      <h4 id="section4-1-4">4.1.4&nbsp; The puzzle view</h4>
+      <p class="wrap">
+        The current puzzle is displayed in the puzzle view, where it can be edited.  The puzzle
+        grid is drawn to fit the area between the puzzle spinner and the status bar, taking into
+        account the minimum size of the margin around the grid and the requirement for the
+        thicknesses of grid lines and the dimensions of cells to be an integral number of
+        pixels.  When the size of cells falls below a threshold, symbols in cells are rendered
+        as dots.
+      </p>
+      <p class="wrap">
+        The keyboard or mouse can be used to select a cell in the grid; the selected cell is
+        highlighted when the puzzle view has keyboard focus.  The arrow keys and the PageUp,
+        PageDown, Home and End keys move the selected cell within the grid.
+      </p>
+      <p class="wrap">
+        A symbol can be entered in the selected cell by typing the character that corresponds to
+        the symbol.  If the character is a letter, its case is ignored by default, but this can
+        be changed with a <a class="configProperty" href="#section6-2-1">user preference</a>.
+        If the selected cell contains a symbol, the symbol can be deleted with the space key or
+        the Delete key.
+      </p>
+      <p class="wrap">
+        If you edit a cell, you can undo the change with the <a class="command"
+        href="#section5-2-1">Edit &gt; Undo</a> command (Ctrl+Z), and you can redo the change
+        with the <span class="command">Edit &gt; Redo</span> command (Ctrl+Y).
+      </p>
+      <p class="wrap">
+        The puzzle view has a context menu that contains all the commands from the <a
+        href="#section5-4"><span class="component">Puzzle</span> menu</a> as well as some
+        commands from the <a href="#section5-2"><span class="component">Edit</span> menu</a> and
+        <a href="#section5-3"><span class="component">View</span> menu</a>.  The context menu is
+        triggered in a platform-specific manner, typically by pressing or releasing the
+        secondary mouse button or by pressing a Menu key.
+      </p>
+      <p class="wrap">
+        If the <a class="command" href="#section5-4-3">Puzzle &gt; Solve</a> command finds
+        solutions to the current puzzle, the main window switches to <a
+        href="#section5-4-3-1"><i>solution mode</i></a> in which the solutions are displayed in
+        the puzzle view until the <a class="command" href="#section5-4-4">Puzzle &gt; Close
+        solutions</a> command is issued (or the Escape key is pressed), which restores puzzle
+        mode.
+      </p>
+
+      <h5 id="section4-1-4-1">4.1.4.1&nbsp; The symbol-chooser pop-up</h5>
+      <p class="noBottomMargin wrap">
+        As an alternative to typing a character in the selected cell, you can also choose a
+        symbol to be entered in the selected cell from a pop-up window that is displayed on the
+        puzzle view.  There are two variants of the pop-up: one in which navigation and
+        selection are controlled with the mouse and one in which navigation and selection are
+        controlled from the keyboard.  The pop-up can be triggered in the following ways:
+      </p>
+      <table class="basic">
+        <tr>
+          <th>Controller</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td rowspan="2">Mouse</td>
+          <td class="wrap">
+            Press the primary mouse button on a cell while the Control key is held down.  The
+            cell is selected before the pop-up is displayed.
+          </td>
+        </tr>
+        <tr>
+          <td class="wrap">
+            Issue the <a class="command" href="#section5-4-1">Puzzle &gt; Choose symbol for
+            selected cell</a> command (F6), which is also available from the context menu for
+            the puzzle view.
+          </td>
+        </tr>
+        <tr>
+          <td>Keyboard</td>
+          <td class="wrap">
+            Press the Ctrl+Enter key combination.
+          </td>
+        </tr>
+      </table>
+      <p class="wrap">
+        Within the pop-up, the symbols are displayed in a grid of buttons.  If a symbol would
+        conflict with another cell in the same row, column or block, its button is disabled.
+        The mouse-controlled pop-up has a <i>clear</i> button below the grid if the target cell
+        is not empty.  You can close the pop-up without making a selection by pressing the
+        Escape key or by pressing the primary mouse button on the main window.
+      </p>
+
+      <h4 id="section4-1-5">4.1.5&nbsp; The status bar</h4>
+      <p class="wrap">
+        The status bar may contain two kinds of information:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          If solutions to the current puzzle are displayed in the puzzle view after the <a
+          class="command" href="#section5-4-3">Puzzle &gt; Solve</a> command has completed
+          successfully, the index of the current solution is shown in the status bar in the form
+          &quot;Solution <i>m</i>&nbsp;/&nbsp;<i>n</i>&quot;.
+        </li>
+        <li class="spaced wrap">
+          If the current puzzle was generated by SudokuGenerator, the generation parameters are
+          shown in the status bar unless they have been deleted with the <a class="command"
+          href="#section5-4-13">Puzzle &gt; Delete properties</a> command.
+        </li>
+      </ul>
+
+      <h4 id="section4-1-6">4.1.6&nbsp; Dragging and dropping files</h4>
+      <p class="noBottomMargin wrap">
+        You can open one or more puzzle files and/or template files in SudokuGenerator by
+        dragging representations of the files from a source such as a file browser and dropping
+        them on the main window of the application.  Files with the following filename
+        extensions are accepted:
+      </p>
+      <ul class="continuationList">
+        <li><code>.sgp</code></li>
+        <li><code>.sgt</code></li>
+        <li><code>.txt</code></li>
+      </ul>
+
+      <h3 id="section4-2">4.2&nbsp; The directory-browser window</h3>
+
+      <p class="wrap">
+        The directory-browser window is a modeless window that can be displayed from the main
+        window of SudokuGenerator with the <a class="command" href="#section5-1-12">File &gt;
+        Browse directory</a> command (F12).  The window contains a grid view of representations
+        of all the SudokuGenerator puzzle files and/or template files in a chosen directory.
+      </p>
+      <p class="wrap">
+        The puzzles cannot be modified in the directory-browser window; the main purposes of the
+        window are to provide an overview of a collection of puzzles and to allow multiple
+        puzzles to be selected for opening and for export as an HTML document.
+      </p>
+      <p class="wrap">
+        At the top of the browser window is a bar that contains two groups of buttons.  The
+        first button in the group on the left triggers a drop-down dialog that contains two
+        controls: a spinner for the number of columns in the grid and a spinner that applies a
+        filter to the files that are displayed in the window.  The second button allows you to
+        choose the directory whose files will be displayed in the window.  The pathname of
+        directory is shown in the title of the window.  The third button refreshes the contents
+        of the window to reflect external changes to the directory.
+      </p>
+      <p class="wrap">
+        On the right of the button bar are a pair of buttons for selecting and deselecting all
+        the files in the browser window.  An individual file may be selected by clicking the
+        primary mouse button on the header of the cell; if the Control key is held down when
+        clicking, the selection of the file is toggled.
+      </p>
+      <p class="wrap">
+        A file that is displayed in the browser window can be opened in SudokuGenerator by
+        double-clicking the primary mouse button on the cell that is associated with the file.
+      </p>
+      <p class="noBottomMargin wrap">
+        The directory-browser window has a context menu that contains items to perform the
+        following actions:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          Select or deselect the file whose cell is under the mouse cursor.
+        </li>
+        <li class="wrap">
+          Open the file whose cell is under the mouse cursor.
+        </li>
+        <li class="wrap">
+          Open all the files that are selected in the browser.
+        </li>
+        <li class="wrap">
+          Export all the files that are selected in the browser to an HTML document.
+        </li>
+      </ul>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Commands -->
+
+    <div class="section">
+      <h2 id="section5">5&nbsp; Commands</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        SudokuGenerator&apos;s main commands are accessible from its <a class="component"
+        href="#section4-1-1">main menu</a>.  Some of the commands are also accessible from a
+        context menu that is activated in a platform-specific manner (eg, by pressing or
+        releasing the right mouse button) while the mouse cursor is over the <a
+        class="component" href="#section4-1-4">puzzle view</a>.
+      </p>
+
+      <h3 id="section5-1">5.1&nbsp; <span class="component">File</span> menu</h3>
+
+      <h4 id="section5-1-1">5.1.1&nbsp; <span class="command">File &gt; New</span></h4>
+      <p class="wrap">
+        The <span class="command">New</span> command (Ctrl+N) displays a modal dialog in which
+        you can choose the <a class="definition" href="#def-order">order</a> of the new puzzle.
+        When you click the appropriate button or press the corresponding digit key, an empty
+        puzzle of the chosen order is created and displayed in the <a class="component"
+        href="#section4-1-4">puzzle view</a> of the main window.
+      </p>
+
+      <h4 id="section5-1-2">5.1.2&nbsp; <span class="command">File &gt; Open puzzle</span></h4>
+      <p class="wrap">
+        The <span class="command">Open puzzle</span> command (Ctrl+O) displays a file-chooser
+        dialog in which you can choose a puzzle file to open.  The dialog has filters for JSON
+        (<code>.sgp</code>) and plain-text (<code>.txt</code>) file formats.  If the file is
+        read and parsed successfully, a <a class="definition" href="#def-document">document</a>
+        is created from its contents and the puzzle is displayed in the <a class="component"
+        href="#section4-1-4">puzzle view</a> of the main window.
+      </p>
+
+      <h4 id="section5-1-3">5.1.3&nbsp; <span class="command">File &gt; Open template</span></h4>
+      <p class="wrap">
+        The <span class="command">Open template</span> command (Ctrl+Shift+O) displays a
+        file-chooser dialog in which you can choose a template file to open.  The dialog has
+        filters for JSON (<code>.sgt</code>) and plain-text (<code>.txt</code>) file formats.
+        If the file is read and parsed successfully, a <a class="definition"
+        href="#def-document">document</a> is created from its contents and the template is
+        displayed in the <a class="component" href="#section4-1-4">puzzle view</a> of the main
+        window.
+      </p>
+
+      <h4 id="section5-1-4">5.1.4&nbsp; <span class="command">File &gt; Reload</span></h4>
+      <p class="wrap">
+        The <span class="command">Reload</span> command reloads the current puzzle or template
+        if it is associated with a file (that is, a file-system location).
+      </p>
+
+      <h4 id="section5-1-5">5.1.5&nbsp; <span class="command">File &gt; Close</span></h4>
+      <p class="wrap">
+        The <span class="command">Close</span> command (Ctrl+W) closes the current document.  If
+        the document has unsaved changes, a warning to this effect is displayed, and the
+        document is closed after you have confirmed that you want to proceed.
+      </p>
+
+      <h4 id="section5-1-6">5.1.6&nbsp; <span class="command">File &gt; Close all</span></h4>
+      <p class="wrap">
+        The <span class="command">Close all</span> command closes all the open documents.  If
+        any documents have unsaved changes, a list of those documents is displayed, from which
+        you can choose the documents that you want to save before they are closed.
+      </p>
+
+      <h4 id="section5-1-7">5.1.7&nbsp; <span class="command">File &gt; Close and delete</span></h4>
+      <p class="wrap">
+        If the current document is associated with a file, the <span class="command">Close and
+        delete</span> command closes the document and deletes the associated file after you have
+        confirmed that you want to proceed with the action.  The command may be used to delete a
+        template file after a puzzle has been generated from the template.
+      </p>
+
+      <h4 id="section5-1-8">5.1.8&nbsp; <span class="command">File &gt; Save</span></h4>
+      <p class="wrap">
+        If the current document has unsaved changes, the <span class="command">Save</span>
+        command (Ctrl+S) command writes the document to a file.  If the document is already
+        associated with a file, it is immediately written to the file; otherwise, a dialog is
+        displayed in which you can choose whether to save the current document as a puzzle or as
+        a template, after which you can choose the file to which the document will be written.
+      </p>
+
+      <h4 id="section5-1-9">5.1.9&nbsp; <span class="command">File &gt; Save as puzzle</span></h4>
+      <p class="wrap">
+        The <span class="command">Save as puzzle</span> command displays a file-chooser dialog
+        in which you can choose a file to which the current document will be written as a
+        puzzle.  The dialog has filters for JSON (<code>.sgp</code>) and plain-text
+        (<code>.txt</code>) file formats.
+      </p>
+
+      <h4 id="section5-1-10">5.1.10&nbsp; <span class="command">File &gt; Save as template</span></h4>
+      <p class="wrap">
+        The <span class="command">Save as template</span> command displays a file-chooser dialog
+        in which you can choose a file to which the current document will be written as a
+        template.  The dialog has filters for JSON (<code>.sgt</code>) and plain-text
+        (<code>.txt</code>) file formats.
+      </p>
+
+      <h4 id="section5-1-11">5.1.11&nbsp; <span class="command">File &gt; Export HTML file</span></h4>
+      <p class="wrap">
+        The <span class="command">Export HTML file</span> command (Ctrl+E) allows you to export
+        the current puzzle or template as an HTML file that may be displayed in a web browser.
+        The command first displays a dialog in which you can choose some parameters that relate
+        to the HTML document that is generated.  If this dialog is accepted, a file-chooser
+        dialog is then displayed in which you can choose the file to which the HTML document
+        will be written.
+      </p>
+      <p class="wrap">
+        If you want to include multiple puzzles in an HTML document, you can do so from the <a
+        class="component" href="#section4-2">directory-browser window</a>.
+      </p>
+
+      <h4 id="section5-1-12">5.1.12&nbsp; <span class="command">File &gt; Browse directory</span></h4>
+      <p class="wrap">
+        The <span class="command">Browse directory</span> command (F12) first displays a dialog
+        in which you can choose the directory whose puzzle files and/or template files you wish
+        to browse.  After you&apos;ve chosen a directory, the relevant files in the directory
+        are displayed in the <a class="component" href="#section4-2">directory-browser
+        window</a>.
+      </p>
+
+      <h4 id="section5-1-13">5.1.13&nbsp; <span class="command">File &gt; Exit</span></h4>
+      <p class="wrap">
+        The <span class="command">Exit</span> command terminates the application.  Before the
+        program shuts down, you will be prompted to save any open documents that have unsaved
+        changes.
+      </p>
+
+      <h3 id="section5-2">5.2&nbsp; <span class="component">Edit</span> menu</h3>
+
+      <h4 id="section5-2-1">5.2.1&nbsp; <span class="command">Edit &gt; Undo</span> / <span class="command">Edit &gt; Redo</span></h4>
+      <p class="wrap">
+        The edits (changes) that you make to a document can be undone and redone with the
+        complementary <span class="command">Undo</span> and <span class="command">Redo</span>
+        commands (Ctrl+Z and Ctrl+Y respectively).  The edits are stored in a list (the
+        document&apos;s <i>history</i>) whose length is limited by a <a class="configProperty"
+        href="#section6-2-4">user preference</a>.
+      </p>
+      <p class="wrap">
+        The <span class="command">Undo</span> command reverses the last edit that was made to
+        the current document.  If an edit is undone with the <span class="command">Undo</span>
+        command, it can subsequently be restored with the <span class="command">Redo</span>
+        command provided that no other edits have been made since it was undone.
+      </p>
+
+      <h4 id="section5-2-2">5.2.2&nbsp; <span class="command">Edit &gt; Copy text</span></h4>
+      <p class="wrap">
+        The <span class="command">Copy text</span> command copies a textual representation of
+        the current puzzle to the system clipboard.  The text has the <a href="#sectionD">format
+        of a plain-text file</a>.  The command displays a modal dialog in which the <span
+        class="component">Separate blocks</span> check box controls whether the <a
+        class="definition" href="#def-block">blocks</a> of the puzzle will be separated by
+        spaces and empty lines in the textual representation.
+      </p>
+
+      <h4 id="section5-2-3">5.2.3&nbsp; <span class="command">Edit &gt; Paste</span></h4>
+      <p class="wrap">
+        If the system clipboard contains text that was copied to it by the <a class="command"
+        href="#section5-2-2">Edit &gt; Copy text</a> command, the <span
+        class="command">Paste</span> command creates a puzzle document from it and displays the
+        puzzle in the <a class="component" href="#section4-1-4">puzzle view</a> of the main
+        window.
+      </p>
+
+      <h4 id="section5-2-4">5.2.4&nbsp; <span class="command">Edit &gt; Preferences</span></h4>
+      <p class="wrap">
+        The <span class="command">Preferences</span> command displays a modal dialog in which
+        the user preferences of SudokuGenerator can be edited.  By default, the preferences are
+        stored in a <a href="#section3">configuration file</a>.  The use of a configuration file
+        can be <a href="#section3-2">disabled</a>.
+      </p>
+      <p class="wrap">
+        The individual user preferences are described in a <a href="#section6">later
+        section</a>.
+      </p>
+
+      <h3 id="section5-3">5.3&nbsp; <span class="component">View</span> menu</h3>
+
+      <h4 id="section5-3-1">5.3.1&nbsp; <span class="command">View &gt; Copy image</span></h4>
+      <p class="wrap">
+        The <span class="command">Copy image</span> command creates an image of the current
+        puzzle and puts it on the system clipboard for use by other applications.  The command
+        displays a modal dialog that contains two controls:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          The <span class="component">Image size</span> spinner controls the preferred logical
+          size of the generated image.  The size is an upper bound because, as with a grid on
+          screen, the grid in an image has the requirement that the thicknesses of grid lines
+          and the dimensions of cells be an integral number of pixels.
+        </li>
+        <li class="spaced wrap">
+          If the <span class="component">Apply display scale</span> check box is selected, the
+          preferred physical size of the generated image in pixels is calculated by multiplying
+          the value of the <span class="component">Image size</span> spinner by the scale factor
+          of the display, which is shown in parentheses after the label of the <span
+          class="component">Apply display scale</span> check box.  For a display whose scale
+          factor is not 1, this option can be used to generate an image in which the relative
+          thicknesses of block-boundary grid lines and regular grid lines match those on the
+          screen.
+        </li>
+      </ul>
+
+      <h3 id="section5-4">5.4&nbsp; <span class="component">Puzzle</span> menu</h3>
+
+      <h4 id="section5-4-1">5.4.1&nbsp; <span class="command">Puzzle &gt; Choose symbol for selected cell</span></h4>
+      <p class="wrap">
+        The <span class="command">Choose symbol for selected cell</span> command (F6) triggers
+        the <a href="#section4-1-4-1">symbol-chooser pop-up</a> from which you can choose a
+        symbol to be entered in the selected cell of the grid of the current puzzle.  The pop-up
+        is controlled by the mouse.
+      </p>
+
+      <h4 id="section5-4-2">5.4.2&nbsp; <span class="command">Puzzle &gt; Find entry for selected cell</span></h4>
+      <p class="wrap">
+        If the current puzzle is <a class="definition" href="#def-validPuzzle">valid</a>, the
+        <span class="command">Find entry for selected cell</span> command (Ctrl+F) searches for
+        solutions to the puzzle after asking for confirmation.  If it finds a unique solution,
+        it sets the symbol of the selected cell of the current puzzle to the corresponding entry
+        in the solution.
+      </p>
+      <p class="noBottomMargin wrap">
+        The search for solutions is equivalent to executing the <a class="command"
+        href="#section5-4-3">Puzzle &gt; Solve</a> command with the following parameter values:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          maximum number of solutions = 2,
+        </li>
+        <li class="wrap">
+          randomise search = true.
+        </li>
+      </ul>
+      <p class="wrap">
+        Note that the time taken to execute the <span class="command">Find entry for selected
+        cell</span> command can vary widely depending on the puzzle.  It will usually be a
+        fraction of a second for an <a class="definition" href="#def-order">order-3</a> puzzle,
+        but it can be several minutes for a particularly tricky order-5 puzzle.
+      </p>
+
+      <h4 id="section5-4-3">5.4.3&nbsp; <span class="command">Puzzle &gt; Solve</span></h4>
+      <p class="wrap">
+        If the current puzzle is <a class="definition" href="#def-validPuzzle">valid</a>, the
+        <span class="command">Solve</span> command (F9) will search for solutions to the puzzle.
+        The command displays a modal dialog that contains two controls:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          The <span class="component">Maximum number of solutions</span> spinner puts an upper
+          bound on the number of solutions that will be found by the search.  If you type a
+          number in the text field of the spinner, you&apos;ll need to press the Enter key to
+          &apos;commit&apos; the number.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Randomise search</span> check box controls whether or not
+          the search path is randomised.  If the check box is not selected, the search tree is
+          traversed in an arbitrary but predictable order.  If the check box is selected, the
+          branches of the tree are traversed in a random order.
+        </li>
+      </ul>
+      <p class="wrap">
+        The search for solutions uses <a class="external"
+        href="https://en.wikipedia.org/wiki/Backtracking">backtracking</a>, with flags that keep
+        track of the available values (symbols) in the row, column and block to which a cell
+        belongs.  The time taken to search for a given maximum number of solutions varies with
+        the puzzle; for a particularly tricky order-5 puzzle, it can be several minutes.
+        Without randomisation, multiple searches of the same puzzle will follow the same path,
+        and will therefore take roughly the same time, allowing for the vagaries of scheduling.
+        With randomisation, multiple searches of the same puzzle will be likely to follow
+        different paths, and a given randomised search may take more or less time than an
+        unrandomised search.  The <i>randomised search</i> option is selected by default because
+        there is no reason to believe that, in the long run, the arbitrary ordering of search
+        paths in an unrandomised search will outperform a random ordering.
+      </p>
+
+      <h5 id="section5-4-3-1">5.4.3.1&nbsp; Solution mode</h5>
+      <p class="noBottomMargin wrap">
+        If a search finds solutions, the main window switches to <i>solution mode</i>:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          The solutions are displayed in the <a class="component" href="#section4-1-4">puzzle
+          view</a>.  The colour of the symbols differs slightly from the regular colour.
+        </li>
+        <li class="wrap">
+          The index of the current solution and the number of solutions are displayed in the <a
+          class="component" href="#section4-1-5">status bar</a> alongside a pair of buttons for
+          navigating the solutions.  When the puzzle view has keyboard focus, you can also use
+          the left and right arrow keys to move through the solutions.
+        </li>
+      </ul>
+      <p class="wrap">
+        You can return to puzzle mode from solution mode with the <a class="command"
+        href="#section5-4-4">Puzzle &gt; Close solutions</a> command or by pressing the Escape
+        key.
+      </p>
+      <p class="wrap">
+        Besides the <span class="command">Close solutions</span> command, the only other command
+        from the puzzle menu that is available in solution mode is the <a class="command"
+        href="#section5-4-5">Puzzle &gt; Duplicate</a> command, which allows you to make a copy
+        of the solution that is currently displayed.
+      </p>
+ 
+      <h4 id="section5-4-4">5.4.4&nbsp; <span class="command">Puzzle &gt; Close solutions</span></h4>
+      <p class="wrap">
+        The <span class="command">Close solutions</span> command (Escape) is available only in
+        <a href="#section5-4-3-1"><i>solution mode</i></a>.  The command ends solution mode and
+        restores puzzle mode (the default mode of the main window).
+      </p>
+
+      <h4 id="section5-4-5">5.4.5&nbsp; <span class="command">Puzzle &gt; Duplicate</span></h4>
+      <p class="wrap">
+        The <span class="command">Duplicate</span> command (Ctrl+D) creates a new puzzle that is
+        a copy of the current puzzle, and the copy becomes the current puzzle.  The command can
+        be used in <a href="#section5-4-3-1">solution mode</a> to create a copy of a solution
+        that survives beyond the end of solution mode.
+      </p>
+
+      <h4 id="section5-4-6">5.4.6&nbsp; <span class="command">Puzzle &gt; Generate</span></h4>
+      <p class="noBottomMargin wrap">
+        The <span class="command">Generate</span> command (Ctrl+G) attempts to generate a puzzle
+        whose <a class="definition" href="#def-order">order</a> is the order of the current
+        puzzle and whose entries are constrained in one of two ways:
+      </p>
+      <ol class="continuationList">
+        <li class="wrap">
+          If the current puzzle is empty, you must specify the number of entries in the
+          generated puzzle; the cells that will contain entries are chosen randomly.
+        </li>
+        <li class="wrap">
+          If the current puzzle is not empty, it is treated as a <i>template</i> whose entries
+          indicate the cells that will contain entries in the generated puzzle.  (The symbols in
+          the cells of the template are ignored.)
+        </li>
+      </ol>
+      <p class="noBottomMargin wrap">
+        A puzzle may be generated in one of two ways, which are referred to as <i>modes</i>.
+        Both modes have the same goal of finding entries for a set of <i>target cells</i>; they
+        differ in how the search is performed:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          In <i>additive mode</i>, a symbol is chosen for each target cell in turn from the
+          symbols that are available for the cell.  If symbols can be found for all the target
+          cells, the resulting <a class="definition" href="#def-validPuzzle">valid puzzle</a> is
+          solved to discover whether it is also <a class="definition"
+          href="#def-wellPosedPuzzle">well-posed</a>.  If the puzzle has a unique solution,
+          generation has succeeded; otherwise, the traversal of the search tree proceeds by <a
+          href="https://en.wikipedia.org/wiki/Backtracking">backtracking</a> until either a
+          puzzle with a unique solution is found or the entire search tree has been traversed.
+        </li>
+        <li class="spaced wrap">
+          In <i>subtractive mode</i>, random entries are generated for all the cells of the grid
+          by solving an empty puzzle, then entries are removed from all cells except for the
+          target cells.  The puzzle is verified (that is, solved and checked for a unique
+          solution) either after each unwanted entry is removed (if <i>incremental
+          verification</i> is selected) or only once, after all unwanted entries have been
+          removed.  If the puzzle is found to be <a class="definition"
+          href="#def-wellPosedPuzzle">well-posed</a> after entries have been removed from all
+          cells except for the target cells, generation has succeeded; otherwise, the
+          generate-and-reduce procedure is repeated until it succeeds in finding a set of
+          entries for the target cells that has a unique solution.  Even if such a set of
+          entries exists, it is not certain that this procedure will find it.
+        </li>
+      </ul>
+      <p class="wrap">
+        The command dispays a modal dialog in which you can choose the parameters that control
+        the generation of a puzzle using the following controls:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          At the bottom left corner of the dialog is the <span class="component">Mode</span>
+          spinner, which switches between the two modes of puzzle generation.  Each mode has its
+          own set of parameters whose values are chosen with the controls in the upper section
+          of the dialog.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Number of entries</span> spinner controls the number of
+          entries in the generated puzzle.  The spinner is disabled if a template was supplied;
+          that is, it is enabled only if the current puzzle was empty when the <span
+          class="command">Generate</span> command was issued.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Seed</span> text field is used to specify a decimal number
+          that will be the seed of a pseudo-random number generator (PRNG) that is used in the
+          generation of a puzzle.  Alongside the field is a <span
+          class="component">Random</span> button, which supplies a seed from a pseudo-random
+          source.  The button can be fired with the Ctrl+R key combination.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Randomise verification</span> check box controls whether
+          the search path for solutions is randomised when a <a class="definition"
+          href="#def-validPuzzle">valid</a> candidate puzzle is verified by checking that it has
+          a unique solution.  The role of the <span class="component">Randomise
+          verification</span> check box is analogous to role of the <span
+          class="component">Randomise search</span> check box in the <a class="command"
+          href="#section5-4-3">Puzzle &gt; Solve</a> command.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Number of threads</span> spinner controls the maximum
+          number of threads that will be allocated to puzzle-generation tasks; the number of
+          threads that are actually allocated may be fewer than this, depending on the capacity
+          of the system.  The value 0 is interpreted as max(1, <i>numProcessors</i> &minus; 1),
+          where <i>numProcessors</i> is the value that is returned by the Java
+          <code>Runtime.availableProcessors()</code> method.  This number is displayed next to
+          the spinner when the value 0 is selected.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Verify incrementally</span> check box is displayed only in
+          subtractive mode.  It controls whether a generated puzzle is verified (that is, solved
+          and checked for a unique solution) either after each unwanted entry is removed or only
+          once, after all unwanted entries have been removed.  It is recommended that you select
+          this option because the benefit of rejecting a candidate puzzle at an early stage is
+          likely to outweigh the cost of repeatedly solving a diminishing puzzle.
+        </li>
+      </ul>
+      <p class="wrap">
+        In both additive and subtractive modes, the tasks that run on multiple threads are
+        independent of each other.  This approach was adopted because, when generating a puzzle,
+        most of the time (&asymp;99% in additive mode, &asymp;90% in subtractive mode) is spent
+        on verifying candidates &mdash; checking that a candidate has a unique solution by
+        searching for two solutions.  To partition the search tree over multiple threads would
+        require the sharing of state between threads, and the synchronisation needed to achieve
+        it was deemed too costly.  The chosen approach means that the independent threads are in
+        a race to generate a puzzle; if the number of threads is greater than 1, the order in
+        which they finish is indeterminate.  In other words, it is possible for two iterations
+        of the race with the same set of parameters (seed of the PRNG, number of threads, etc)
+        to be &apos;won&apos; by different threads, yielding different puzzles.
+      </p>
+      <p class="noBottomMargin wrap">
+        Puzzle generation is started with the <span class="component">Generate</span> button
+        (Ctrl+Enter).  During generation, a count of attempts is displayed as an indication of
+        progress.  The meaning of an <i>attempt</i> differs between additive mode and
+        subtractive mode:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          In additive mode, an attempt is recorded each time a <a class="definition"
+          href="#def-validPuzzle">valid</a> candidate puzzle is solved.  An attempt will usually
+          fail because the puzzle has multiple solutions.
+        </li>
+        <li class="wrap">
+          In subtractive mode, an attempt is recorded each time a candidate puzzle is verified.
+          If incremental verification is enabled, the repeated solving of a diminishing
+          candidate counts as a single attempt.
+        </li>
+      </ul>
+
+      <h4 id="section5-4-7">5.4.7&nbsp; <span class="command">Puzzle &gt; Create template</span></h4>
+      <p class="wrap">
+        The <span class="command">Create template</span> command (Ctrl+T) displays a modal
+        dialog in which you can create a <a class="definition" href="#def-template">template</a>
+        that you can use to <a class="command" href="#section5-4-6">generate a puzzle</a>.  The
+        dialog allows you to create multiple templates and to choose the one that you prefer.
+      </p>
+      <p class="wrap">
+        The top part of the dialog contains a grid in which you can edit a template.  The grid
+        appears similar to the one in the <a class="component" href="#section4-1-4">puzzle
+        view</a> of the main window except that it is overlaid with representations of the kind
+        of symmetry that is in effect in the dialog (ie, the value that is selected in the <a
+        class="component" href="#cmd-puzzle-createTemplate-1">Symmetry</a> spinner):
+        reflectional symmetry is represented by axes of symmetry and rotational symmetry is
+        represented by circular arcs.
+      </p>
+      <p class="wrap">
+        When you issue the <span class="command">Create template</span> command, if the current
+        puzzle is not empty, its entries are copied, <a class="command"
+        href="#section5-4-11">homogenised</a> and set on the grid of the template dialog.  The
+        homogenised copy becomes the first element in the dialog&apos;s list of templates.
+        Within the dialog, you can create templates and add them to the list, select a template
+        from the list and edit the selected template.  When you accept the dialog with the <span
+        class="component">OK</span> button, the selected template replaces the current puzzle in
+        the main window and the remaining templates in the list are discarded.
+      </p>
+      <p class="wrap">
+        The keyboard or mouse can be used to select a cell in the grid of the template dialog;
+        the selected cell is highlighted when the puzzle view has keyboard focus.  The arrow
+        keys and the PageUp, PageDown, Home and End keys move the selected cell within the grid.
+      </p>
+      <p class="wrap">
+        The symbol that is selected in the <span class="component">Symbol</span> drop-down list
+        can be entered in the selected cell by typing any of the characters that correspond to
+        the symbols in the drop-down list.  If the character is a letter, its case is ignored by
+        default, but this can be changed with a <a class="configProperty"
+        href="#section6-2-1">user preference</a>.  If the selected cell contains a symbol, the
+        symbol can be deleted with the space key or the Delete key.
+      </p>
+      <p class="wrap">
+        Double-clicking the primary mouse button on a cell will toggle the grid entry between an
+        empty cell and the symbol that is selected in the <span class="component">Symbol</span>
+        drop-down list.
+      </p>
+      <p class="wrap">
+        Changes to the entries of the template can be undone and redone with the dialog&apos;s
+        <span class="command">Undo</span> and <span class="command">Redo</span> commands, which
+        can be accessed from a context menu on the grid or with the Ctrl+Z and Ctrl+Y key
+        combinations.
+      </p>
+      <p class="wrap">
+        The template dialog contains the following controls in the pane below the grid:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap" id="cmd-puzzle-createTemplate-1">
+          The <span class="component">Symmetry</span> spinner selects the kind of symmetry that
+          is applied to a template that is created by the <a class="command"
+          href="#cmd-puzzle-createTemplate-2">Add template</a> command.  It also applies to
+          edits that are made to the current template in the dialog&apos;s editor.  The symmetry
+          of the initial template, which is created from the current puzzle, may differ from the
+          initial symmetry in the template dialog.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Preferred number of entries</span> spinner applies to
+          templates that are created with the <a class="command"
+          href="#cmd-puzzle-createTemplate-2">Add template</a> command.  The value is an upper
+          bound; the actual number of entries in a new template is constrained by the current
+          symmetry.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Symbol</span> drop-down list selects the symbol of the
+          entries of a template that is created by the <a class="command"
+          href="#cmd-puzzle-createTemplate-2">Add template</a> command.  It also applies to
+          edits that are made to the current template in the dialog&apos;s editor.  If a new
+          symbol is selected from the drop-down list, all entries in the current template are
+          changed to the new symbol.  The symbols in the drop-down list are those of the current
+          puzzle in the main window.
+        </li>
+      </ul>
+      <p class="wrap">
+        The four buttons at the bottom left of the dialog are associated with commands that are
+        related to the list of templates:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap" id="cmd-puzzle-createTemplate-2">
+          The button whose icon is a plus sign issues the <span class="command">Add
+          template</span> command (Ctrl+T), which creates a new template and appends it to the
+          dialog&apos;s list of templates.  The template is created with the symmetry, preferred
+          number of entries and symbol that are specified by the controls described above.
+        </li>
+        <li class="spaced wrap">
+          The button whose icon is a left arrowhead issues the <span class="command">Previous
+          template</span> command (Ctrl+PageUp), which selects the previous template in the
+          dialog&apos;s list of templates.
+        </li>
+        <li class="spaced wrap">
+          The button whose icon is a right arrowhead issues the <span class="command">Next
+          template</span> command (Ctrl+PageDown), which selects the next template in the
+          dialog&apos;s list of templates.
+        </li>
+        <li class="spaced wrap">
+          The button whose icon is a cross in a disc issues the <span class="command">Clear
+          template</span> command (Ctrl+Delete), which removes all entries from the current
+          template.  The action can be undone.
+        </li>
+      </ul>
+      <p class="wrap">
+        The commands that are associated with the buttons are accessible through the context
+        menu on the grid.
+      </p>
+      <p class="wrap">
+        To the right of the four buttons are a box that contains the number of entries in the
+        current template and a label that shows the index of the current template.
+      </p>
+
+      <h4 id="section5-4-8">5.4.8&nbsp; <span class="command">Puzzle &gt; Count entries</span></h4>
+      <p class="wrap">
+        The <span class="command">Count entries</span> command (F7) displays the number of <a
+        class="definition" href="#def-gridEntry">grid entries</a> in the current puzzle.
+      </p>
+
+      <h4 id="section5-4-9">5.4.9&nbsp; <span class="command">Puzzle &gt; Check</span></h4>
+      <p class="noBottomMargin wrap">
+        The <span class="command">Check</span> command (F8) first tests whether the current
+        puzzle is <a class="definition" href="#def-validPuzzle">valid</a>.  If the puzzle
+        contains conflicting entries, the first pair of such entries is highlighted; otherwise,
+        a search for solutions is performed and the result of the search is reported.  The
+        search for solutions is equivalent to executing the <a class="command"
+        href="#section5-4-3">Puzzle &gt; Solve</a> command with the following parameter values:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          maximum number of solutions = 2,
+        </li>
+        <li class="wrap">
+          randomise search = true.
+        </li>
+      </ul>
+      <p class="wrap">
+        Note that the time taken to execute the <span class="command">Check</span> command can
+        vary widely depending on the puzzle.  It will usually be a fraction of a second for an
+        <a class="definition" href="#def-order">order-3</a> puzzle, but it can be several
+        minutes for a particularly tricky order-5 puzzle.
+      </p>
+
+      <h4 id="section5-4-10">5.4.10&nbsp; <span class="command">Puzzle &gt; Transform</span></h4>
+      <p class="noBottomMargin wrap">
+        The <span class="command">Transform</span> submenu contains menu items for commands that
+        perform geometric transformations on the current puzzle.  The following transformations
+        are available:
+      </p>
+      <ul class="continuationList">
+        <li>Rotate 90&deg; anticlockwise</li>
+        <li>Rotate 90&deg; clockwise</li>
+        <li>Rotate 180&deg;</li>
+        <li>Flip horizontally (ie, reflect in the vertical axis)</li>
+        <li>Flip vertically (ie, reflect in the horizontal axis)</li>
+      </ul>
+      <p class="wrap">
+        All the transformations preserve the <a class="definition"
+        href="#def-wellPosedPuzzle">well-posed</a> property of a puzzle; that is, if a puzzle is
+        well-posed before it is transformed, it will remain well-posed after the transformation.
+      </p>
+
+      <h4 id="section5-4-11">5.4.11&nbsp; <span class="command">Puzzle &gt; Homogenise entries</span></h4>
+      <p class="wrap">
+        The <span class="command">Homogenise entries</span> command is intended for use when
+        converting a puzzle to a <a class="definition" href="#def-template">template</a>.  It
+        displays a modal dialog in which you can choose a symbol.  If you accept the dialog with
+        the <span class="component">OK</span> button, the chosen symbol will replace the
+        existing symbol in all the entries of the current puzzle.  The command can be undone.
+      </p>
+      <p class="wrap">
+        It is recommended that you use the same symbol for all the entries of a template so that
+        a template can be visually distinguished from a puzzle in the <a class="component"
+        href="#section4-1-4">puzzle view</a>.  The SudokuGenerator application does not
+        distinguish between a regular puzzle and a template in its internal representation of a
+        puzzle.
+      </p>
+      <p class="wrap">
+        It may be unnecessary to execute the <span class="command">Homogenise entries</span>
+        command before you save a template with the <a class="command" href="#section5-1-8">File
+        &gt; Save</a> command or the <a class="command" href="#section5-1-10">File &gt; Save as
+        template</a> command because the <i>Save</i> commands will ask you whether you want to
+        homogenise the entries of a template whose entries are not already homogeneous.
+      </p>
+
+      <h4 id="section5-4-12">5.4.12&nbsp; <span class="command">Puzzle &gt; Clear</span></h4>
+      <p class="wrap">
+        The <span class="command">Clear</span> command removes all the entries of the current
+        puzzle.  The command can be undone.
+      </p>
+
+      <h4 id="section5-4-13">5.4.13&nbsp; <span class="command">Puzzle &gt; Delete properties</span></h4>
+      <p class="wrap">
+        The <span class="command">Delete properties</span> command displays a modal dialog in
+        which you can choose the properties that you want to remove from the current puzzle.
+        Currently, there is only one property: <i>generation information</i>, which, if present,
+        is displayed in the <a class="component" href="#section4-1-5">status bar</a>.  The
+        command can be undone.
+      </p>
+
+      <h4 id="section5-4-14">5.4.14&nbsp; <span class="command">Puzzle &gt; Edit symbols</span></h4>
+      <p class="wrap">
+        The <span class="command">Edit symbols</span> command displays a modal dialog in which
+        you can choose the symbols that will apply to the current puzzle.  When a new puzzle is
+        created, its symbols are set to the <a class="configProperty"
+        href="#section6-2-3">default symbols</a> for the <a class="definition"
+        href="#def-order">order</a> of the puzzle.  The command can be undone.
+      </p>
+      <p class="noBottomMargin wrap">
+        The background colour of the <span class="component">Symbols</span> field indicates
+        whether the set of symbols is invalid (red) or valid (green).  A set of symbols is
+        invalid if
+      </p>
+      <ul class="continuationList">
+        <li>the number of symbols is incorrect,</li>
+        <li>any of the symbols is <a href="#section5-4-14-a">invalid</a>, or</li>
+        <li>it contains duplicate symbols.</li>
+      </ul>
+      <p class="wrap" id="section5-4-14-a">
+        A symbol is valid if it belongs to one of the following <a class="external"
+        href="https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-4/#G124142">Unicode
+        general categories</a>:
+      </p>
+      <table class="twoColumnShaded">
+        <tr>
+          <td class="shaded">Lu</td>
+          <td>Uppercase_Letter</td>
+        </tr>
+        <tr>
+          <td class="shaded">Ll</td>
+          <td>Lowercase_Letter</td>
+        </tr>
+        <tr>
+          <td class="shaded">Lt</td>
+          <td>Titlecase_Letter</td>
+        </tr>
+        <tr>
+          <td class="shaded">Lo</td>
+          <td>Other_Letter</td>
+        </tr>
+        <tr>
+          <td class="shaded">Nd</td>
+          <td>Decimal_Number</td>
+        </tr>
+        <tr>
+          <td class="shaded">Nl</td>
+          <td>Letter_Number</td>
+        </tr>
+        <tr>
+          <td class="shaded">Pc</td>
+          <td>Connector_Punctuation</td>
+        </tr>
+        <tr>
+          <td class="shaded">Pd</td>
+          <td>Dash_Punctuation</td>
+        </tr>
+        <tr>
+          <td class="shaded">Ps</td>
+          <td>Open_Punctuation</td>
+        </tr>
+        <tr>
+          <td class="shaded">Pe</td>
+          <td>Close_Punctuation</td>
+        </tr>
+        <tr>
+          <td class="shaded">Po</td>
+          <td>Other_Punctuation</td>
+        </tr>
+        <tr>
+          <td class="shaded">Sm</td>
+          <td>Math_Symbol</td>
+        </tr>
+        <tr>
+          <td class="shaded">Sc</td>
+          <td>Currency_Symbol</td>
+        </tr>
+        <tr>
+          <td class="shaded">So</td>
+          <td>Other_Symbol</td>
+        </tr>
+      </table>
+
+      <h3 id="section5-5">5.5&nbsp; <span class="component">Platform</span> menu</h3>
+
+      <h4 id="section5-5-1">5.5.1&nbsp; <span class="command">Platform &gt; Manage Windows file associations</span></h4>
+      <p class="wrap">
+        The <span class="command">Manage Windows file associations</span> command is enabled
+        only when SudokuGenerator is running on Windows.  It provides a means of adding or
+        removing an association between the SudokuGenerator application and files whose filename
+        extension is that of a SudokuGenerator JSON-format puzzle file (<code>.sgp</code>) or
+        template file (<code>.sgt</code>).  A file association will allow you, for example, to
+        open a puzzle document in SudokuGenerator by double-clicking on its filename in File
+        Explorer.  If SudokuGenerator is already running, the document will be opened in it;
+        otherwise, the document will be opened in a new instance of SudokuGenerator.  (This
+        behaviour can be <a href="#section2-2-1">changed</a> with the <span
+        class="sysProperty">independentInstance</span> system property.)
+      </p>
+      <p class="wrap">
+        The command creates a file association by modifying entries in the <a class="external"
+        href="https://en.wikipedia.org/wiki/Windows_Registry">Windows Registry</a>, which it
+        does by generating and executing a <a class="external"
+        href="https://en.wikipedia.org/wiki/Windows_PowerShell">Windows PowerShell</a> script.
+        You may execute the script automatically after it is generated, or you can create a
+        script file that you can use outside SudokuGenerator.  In order to run the script, you
+        must have PowerShell 5.1 or later installed on your system and you must be able to run a
+        PowerShell script as an administrator.
+      </p>
+
+      <h5 id="section5-5-1-1">5.5.1.1&nbsp; <span class="command">The <span class="component">Windows file associations</span> dialog</span></h5>
+      <p class="wrap">
+        The <span class="command">Manage Windows file associations</span> command displays a
+        dialog that controls the content of the PowerShell script and the way in which it is
+        used.  At the top of the dialog is a drop-down list from which you can select the action
+        that you want to perform: <i>Add</i> creates new file associations or modifies existing
+        associations; <i>Remove</i> removes file associations that were created with the
+        <i>Add</i> option.  The same script is used for both adding and removing file
+        associations; the difference in behaviour is achieved by adding a switch (the argument
+        <code>-remove</code>) to the command line when the script is used to remove file
+        associations.
+      </p>
+      <p class="wrap">
+        Below the <span class="component">Action</span> drop-down list are fields in which you
+        specify the locations of three files that are required to create the file associations.
+        The fields are disabled if the selected action is <i>Remove</i> because the locations of
+        the files aren&apos;t required when removing file associations, but the content of the
+        fields is always included in the script in case you want to retain a single script for
+        dual purposes.
+      </p>
+      <p class="wrap">
+        The pathnames of the three files may contain <a href="#sectionB">special constructs</a>
+        for system properties and environment variables.  If a specified system property exists,
+        the construct that denotes the property key (eg, <code>${java.home}</code>) will be
+        replaced by the property value.  Environment variables, however, will not be expanded
+        but will be converted to their Windows form (eg, <code>${JAVA_HOME}</code> will be
+        converted to <code>%JAVA_HOME%</code>) before they are included in the script.  The
+        environment variables will be set in Registry values and expanded by the operating
+        system.
+      </p>
+      <p class="wrap">
+        Environment variables of the form <code>%<i>name</i>%</code> may appear in a pathname,
+        but they don&apos;t have a special significance in SudokuGenerator and are treated as
+        literal text.  If a pathname contains environment variables of this form, you should
+        ensure that the <span class="component">Files must exist</span> check box is not
+        selected to avoid an error when the pathnames are resolved.
+      </p>
+      <p class="wrap">
+        To add file associations, the files whose locations you must specify are:
+      </p>
+      <dl class="fileAssoc">
+        <dt>Java launcher</dt>
+        <dd class="wrap">
+          This is the Windows executable that launches a Java program, which will usually be
+          either <code>javaw.exe</code> (no console) or <code>java.exe</code> (console).  The
+          corresponding <span class="command">Default</span> command sets the pathname to that
+          of the file <code>bin\javaw.exe</code> in the directory specified by the
+          <code>java.home</code> system property, which is the directory that contains the
+          launcher of the current SudokuGenerator application.  If you install another version
+          of Java, the Java launcher might be at a different location; if so, you will need to
+          update the file association accordingly.
+        </dd>
+        <dt>JAR</dt>
+        <dd class="wrap">
+          This is the JAR (Java archive) file of the SudokuGenerator application.  The
+          corresponding <span class="command">Default</span> command sets the pathname to that
+          of the JAR file of the current SudokuGenerator application.  (The command is disabled
+          if the application was not run from a JAR file.)
+        </dd>
+        <dt>Icon</dt>
+        <dd class="wrap">
+          This is a Windows icon file for SudokuGenerator.  The file <code>app.ico</code>, which
+          can be found in the <code>uk.blankaspect.sudokugenerator.images</code> package of the
+          application&apos;s resources, is provided for this purpose, but you may choose any
+          suitable icon file to associate with SudokuGenerator documents.
+        </dd>
+      </dl>
+      <p class="wrap">
+        The <span class="component">Files must exist</span> check box below the pathname fields
+        should be selected if you want SudokuGenerator to check that the three files exist
+        before it generates a script.  You should not select the check box if any of the
+        pathnames contain Windows-form environment variables, but environment variables in the
+        form of <a href="#sectionB">special constructs</a> will be expanded when a pathname is
+        resolved.
+      </p>
+      <p class="wrap">
+        The <span class="component">Script life cycle</span> drop-down list controls what
+        happens to the PowerShell script after it is generated.  For all options, a script file
+        named <code>sudokuGeneratorAssociations.ps1</code> is written to a subdirectory of the
+        system&apos;s temporary directory, which is typically <code>AppData\Local\Temp</code>
+        within the user&apos;s home directory.  The name of the subdirectory has the prefix
+        <code>sudokuGenerator_</code> , and the full pathname is displayed when the script file
+        is written.  After the file has been written, it may be executed and optionally deleted
+        after execution, according to selection from the <span class="component">Script life
+        cycle</span> drop-down list.  If you don&apos;t want to preserve the script, the default
+        option of <i>Write, execute and delete</i> will add or remove a file association without
+        leaving a residue on the file system.
+      </p>
+      <p class="wrap">
+        When you accept the dialog with the <span class="component">OK</span> button, the
+        pathnames are validated if the action is <i>Add</i> and the <span
+        class="component">Files must exist</span> check box is selected.  If there is no error,
+        a text-output dialog is displayed to serve as a console for reports of the progress of
+        script operations along with error messages from SudokuGenerator and PowerShell.  The
+        location of the script file is written to the text-output dialog.  Because the script is
+        run as an administrator, Windows may display a User Account Control dialog to ask for
+        confirmation that you want to run the script.  When the script operations have finished,
+        you can copy the contents of the text-output dialog to the system clipboard with the
+        dialog&apos;s <span class="command">Copy</span> command.
+      </p>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Preferences -->
+
+    <div class="section">
+      <h2 id="section6">6&nbsp; Preferences</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <h3 id="section6-1">6.1&nbsp; <span class="component">Appearance</span> tab</h3>
+
+      <h4 id="section6-1-1">6.1.1&nbsp; Colour scheme</h4>
+      <p class="wrap">
+        The <span class="component">Colour scheme</span> spinner selects the colour scheme
+        &mdash; <i>light</i> or <i>dark</i> &mdash; that applies to the user interface of the
+        application.  When you change the value in the spinner, the new colour scheme takes
+        effect immediately.  The old scheme is restored if you cancel the <span
+        class="component">Preferences</span> dialog.
+      </p>
+
+      <h4 id="section6-1-2">6.1.2&nbsp; Grid font</h4>
+      <p class="wrap">
+        The three <span class="component">Grid font</span> components control the font that is
+        used for the symbols of a grid in the main window, the directory-browser window and the
+        template dialog.  If the check box is not selected, the default font (<i>System</i>,
+        <i>Regular</i>) is used.  If the check box is selected, you can choose the family and
+        style of the font from the two drop-down lists.
+      </p>
+
+      <h3 id="section6-2">6.2&nbsp; <span class="component">Puzzle</span> tab</h3>
+
+      <h4 id="section6-2-1">6.2.1&nbsp; Grid | Ignore letter case when typing in a grid</h4>
+      <p class="wrap">
+        This preference applies when you use the keyboard to enter a symbol into the grid in the
+        main window or the template dialog, if the symbol is a letter.  If the <span
+        class="component">Ignore letter case when typing in a grid</span> check box is selected,
+        the case of the typed letter is ignored when it is matched against the symbols of the
+        puzzle.  If the check box is not selected, the case of the typed letter must match the
+        case of the symbol.
+      </p>
+
+      <h4 id="section6-2-2">6.2.2&nbsp; Default symbols</h4>
+      <p class="noBottomMargin wrap">
+        The two controls in the <span class="component">Default symbols</span> pane allow you to
+        choose a default set of symbols for each <a class="definition"
+        href="#def-order">order</a> of a puzzle that is supported by SudokuGenerator.  First,
+        select the order with the <span class="component">Order</span> spinner, then enter the
+        required number of characters in the <span class="component">Symbols</span> field.  The
+        background colour of the field indicates whether the set of symbols is invalid (red) or
+        valid (green).  A set of symbols is invalid if
+      </p>
+      <ul class="continuationList">
+        <li>the number of symbols is incorrect,</li>
+        <li>any of the symbols is <a href="#section5-4-14-a">invalid</a>, or</li>
+        <li>it contains duplicate symbols.</li>
+      </ul>
+      <p class="wrap">
+        The default symbols apply initially to a new puzzle that is created with the <a
+        class="command" href="#section5-1-1">File &gt; New</a> command.  The symbols of a puzzle
+        can be changed with the <a class="command" href="#section5-4-14">Puzzle &gt; Edit
+        symbols</a> command.
+      </p>
+
+      <h4 id="section6-2-4">6.2.4&nbsp; Edit history | Maximum size of history</h4>
+      <p class="wrap">
+        The <span class="component">Maximum size of history</span> spinner selects the maximum
+        number of edits that can be stored in a document&apos;s history for use by the <a
+        class="command" href="#section5-2-1">Edit &gt; Undo</a> and <a class="command"
+        href="#section5-2-1">Edit &gt; Redo</a> commands.
+      </p>
+
+      <h4 id="section6-2-5">6.2.5&nbsp; Edit history | Clear history on save</h4>
+      <p class="wrap">
+        If the <span class="component">Clear history on save</span> check box is selected, a
+        document&apos;s history of edits (see <a class="command" href="#section5-2-1">Edit &gt;
+        Undo/Redo</a>) is cleared when the document is saved.
+      </p>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Glossary of terms -->
+
+    <div class="section">
+      <h2 id="sectionA">Appendix A:&nbsp; Glossary of terms</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        The following terms are used in this document and in the SudokuGenerator application.
+        The terms marked with an asterisk, <span class="asterisk">*</span>, were coined for use
+        with SudokuGenerator.
+      </p>
+
+      <dl class="terminology">
+
+        <dt id="def-block">block</dt>
+        <dd class="wrap">
+          A <i>block</i> is a square region of a <a class="definition" href="#def-grid">grid</a>
+          that contains <a class="definition" href="#def-order">order</a><sup>2</sup> (order
+          &times; order) cells.  A grid contains order<sup>2</sup> blocks, which are
+          non-overlapping and cover the grid.  Adjacent blocks are separated by thick <a
+          class="definition" href="#def-gridLine">grid lines</a>.
+        </dd>
+
+        <dt id="def-cell">cell</dt>
+        <dd class="wrap">
+          A <i>cell</i> is an element of a <a class="definition" href="#def-grid">grid</a>.
+          Adjacent cells are separated by <a class="definition" href="#def-gridLine">grid
+          lines</a>.  A cell may be empty or it may contain a <a class="definition"
+          href="#def-symbol">symbol</a>, which is referred to as an <a class="definition"
+          href="#def-gridEntry">entry</a>.
+        </dd>
+
+        <dt id="def-commonSudoku">common sudoku</dt>
+        <dd class="wrap">
+          In this document, <i>common sudoku</i> refers to the kind of sudoku puzzle that has a
+          <a class="definition" href="#def-grid">grid</a> of 9&nbsp;&times;&nbsp;9 <a
+          class="definition" href="#def-cell">cells</a> and whose <a class="definition"
+          href="#def-symbol">symbols</a> are the decimal digits &apos;1&apos; to &apos;9&apos;.
+        </dd>
+
+        <dt id="def-document">document</dt>
+        <dd class="wrap">
+          A puzzle or template that is open in SudokuGenerator is sometimes referred to as a
+          <i>document</i>.  A document is displayed in a view in the main window of the
+          application.
+        </dd>
+
+        <dt id="def-entry">entry</dt>
+        <dd class="wrap">
+          See <a class="definition" href="#def-gridEntry"><i>grid entry</i></a>.
+        </dd>
+
+        <dt id="def-grid">grid</dt>
+        <dd class="wrap">
+          A <i>grid</i> is a square array of cells.  A grid is divided by <a class="definition"
+          href="#def-gridLine">lines</a> into horizontal rows, vertical columns and square <a
+          class="definition" href="#def-block">blocks</a>.
+        </dd>
+
+        <dt id="def-gridEntry">grid entry</dt>
+        <dd class="wrap">
+          A <i>grid entry</i> &mdash; often abbreviated to <i>entry</i> &mdash; is a <a
+          class="definition" href="#def-cell">cell</a> that contains a symbol.
+        </dd>
+
+        <dt id="def-gridLine">grid line</dt>
+        <dd class="wrap">
+          The horizontal and vertical lines that divide the <a class="definition"
+          href="#def-grid">grid</a> into rows and columns are referred to as <i>grid lines</i>.
+          The outer lines of a grid are also considered to be grid lines.  The grid lines that
+          mark the edges of <a class="definition" href="#def-block">blocks</a> are thicker than
+          regular grid lines.
+        </dd>
+
+        <dt id="def-order">order&nbsp;<span class="asterisk">*</span></dt>
+        <dd>
+          <div class="wrap">
+            <i>Order</i> is an idiosyncratic term that is used by SudokuGenerator to denote the
+            fundamental size of a sudoku puzzle.  The order of <a class="definition"
+            href="#def-commonSudoku">common sudoku</a> is 3.  Several quantities that relate to
+            a sudoku puzzle can be expressed as powers of its order:
+          </div>
+          <ul>
+            <li>
+              <div class="wrap">
+                order<sup>1</sup> &nbsp;(= order)
+              </div>
+              <ul>
+                <li class="wrap">
+                  the number of <a class="definition" href="#def-cell">cells</a> in each
+                  dimension of a <a class="definition" href="#def-block">block</a>
+                </li>
+                <li class="wrap">
+                  the number of blocks in each dimension of a <a class="definition"
+                  href="#def-grid">grid</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <div class="wrap">
+                order<sup>2</sup> &nbsp;(= order &times; order)
+              </div>
+              <ul>
+                <li class="wrap">
+                  the number of rows in a grid
+                </li>
+                <li class="wrap">
+                  the number of columns in a grid
+                </li>
+                <li class="wrap">
+                  the number of blocks in a grid
+                </li>
+                <li class="wrap">
+                  the size of the set of <a class="definition" href="#def-symbol">symbols</a> of
+                  a puzzle
+                </li>
+              </ul>
+            </li>
+            <li>
+              <div class="wrap">
+                order<sup>3</sup> &nbsp;(= order &times; order &times; order)
+              </div>
+              <ul>
+                <li class="wrap">
+                  the number of cells in a row of blocks
+                </li>
+                <li class="wrap">
+                  the number of cells in a column of blocks
+                </li>
+              </ul>
+            </li>
+            <li>
+              <div class="wrap">
+                order<sup>4</sup> &nbsp;(= order &times; order &times; order &times; order)
+              </div>
+              <ul>
+                <li class="wrap">
+                  the number of cells in a grid
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </dd>
+
+        <dt id="def-solution">solution</dt>
+        <dd class="wrap">
+          A <i>solution</i> to a valid puzzle is a complete set of <a class="definition"
+          href="#def-gridEntry">grid entries</a> in which each <a class="definition"
+          href="#def-symbol">symbol</a> appears exactly once in each row, column and <a
+          class="definition" href="#def-block">block</a> of the <a class="definition"
+          href="#def-grid">grid</a>.
+        </dd>
+
+        <dt id="def-symbol">symbol</dt>
+        <dd class="wrap">
+          A <i>symbol</i> is one of the set of characters that may appear in a <a
+          class="definition" href="#def-cell">cell</a> of a <a class="definition"
+          href="#def-grid">grid</a>.  A puzzle has <a class="definition"
+          href="#def-order">order</a><sup>2</sup> (order &times; order) symbols.
+          SudokuGenerator allows you to edit the symbols of a puzzle and the default symbols of
+          puzzles of a given order.
+        </dd>
+
+        <dt id="def-template">template&nbsp;<span class="asterisk">*</span></dt>
+        <dd class="wrap">
+          A <i>template</i> is a set of <a class="definition" href="#def-cell">cells</a> from
+          which SudokuGenerator may generate a <a class="definition"
+          href="#def-wellPosedPuzzle">well-posed puzzle</a>.  When a puzzle is generated from a
+          template, the <a class="definition" href="#def-gridEntry">grid entries</a> in the
+          template serve as placeholders for the entries in the puzzle; the <a
+          class="definition" href="#def-symbol">symbols</a> in the cells are ignored.  It is
+          recommended that you use the same symbol for all the entries of a template so that a
+          template can be visually distinguished from a puzzle in the <a class="component"
+          href="#section4-1-4">puzzle view</a>.
+        </dd>
+
+        <dt id="def-validPuzzle">valid puzzle</dt>
+        <dd class="wrap">
+          A <i>valid puzzle</i> is an incomplete set of <a class="definition"
+          href="#def-gridEntry">grid entries</a> in which no <a class="definition"
+          href="#def-symbol">symbol</a> appears more than once in any row, column or <a
+          class="definition" href="#def-block">block</a> of the <a class="definition"
+          href="#def-grid">grid</a>.  A valid puzzle may be either <a class="definition"
+          href="#def-wellPosedPuzzle"><i>well-posed</i></a> in that it has a unique <a
+          class="definition" href="#def-solution">solution</a> or <i>ill-posed</i> in that it
+          has a multiple solutions.
+        </dd>
+
+        <dt id="def-wellPosedPuzzle">well-posed puzzle</dt>
+        <dd class="wrap">
+          A <i>well-posed puzzle</i> is a <a class="definition" href="#def-validPuzzle">valid
+          puzzle</a> that has a unique <a class="definition" href="#def-solution">solution</a>.
+          A valid puzzle that has multiple solutions is termed <i>ill-posed</i>.  All the
+          puzzles that SudokuGenerator generates are well-posed.
+        </dd>
+
+      </dl>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Special constructs in pathnames -->
+
+    <div class="section">
+      <h2 id="sectionB">Appendix B:&nbsp; Special constructs in pathnames</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        Where indicated elsewhere in this document, some pathname parameters and system
+        properties in SudokuGenerator can contain special constructs for system properties,
+        environment variables and the user&apos;s home directory.  The special constructs are
+        expanded when the pathname is used.
+      </p>
+
+      <h3 id="sectionB-1">B.1&nbsp; System properties and environment variables</h3>
+
+      <p class="wrap">
+        Java system properties (eg, the user&apos;s home directory, <code>user.home</code>) and
+        environment variables (eg, <code>PATH</code>) are referenced by enclosing them between
+        <code>${</code> and <code>}</code>; that is, they must have the form
+        <code>${&lt;<i>name</i>&gt;}</code>.  A Java system property takes precedence over an
+        environment variable with the same name.
+      </p>
+      <p class="wrap">
+        &bull; Example: <code>${user.home}/projects</code>
+      </p>
+      <p class="wrap">
+        &bull; Example: <code>${HOME}/projects</code>
+      </p>
+      <p class="wrap">
+        A Java system property can be specified by prefixing <code>sys.</code> to it:
+      </p>
+      <p class="wrap">
+        &bull; Example: <code>${sys.user.home}/projects</code>
+      </p>
+      <p class="wrap">
+        An environment variable can be specified by prefixing <code>env.</code> to it:
+      </p>
+      <p class="wrap">
+        &bull; Example: <code>${env.HOME}/projects</code>
+      </p>
+
+      <h3 id="sectionB-2">B.2&nbsp; User&apos;s home directory</h3>
+      <p class="wrap">
+        A leading <code>~</code> in a pathname is expanded into the user&apos;s home directory
+        using the <code>user.home</code> system property, which is usually equivalent to the
+        environment variable <code>HOME</code> on Unix-like systems or <code>USERPROFILE</code>
+        on Windows systems.
+      </p>
+      <p class="wrap">
+        &bull; Example: <code>~/projects</code>
+      </p>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- System properties -->
+
+    <div class="section">
+      <h2 id="sectionC">Appendix C:&nbsp; System properties</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        SudokuGenerator recognises the system properties listed below.  A system property can be
+        set on the command line of the Java launcher (<code>java</code> or <code>javaw</code>)
+        with the <code>-D</code> option (eg, <code>-Dblankaspect.app.noConfigFile=true</code>).
+      </p>
+
+      <dl class="sysProperties">
+
+        <dt>independentInstance</dt>
+        <dd class="wrap">
+          This property determines whether an instance of the SudokuGenerator application will
+          <a href="#section2-2-1">run independently</a> of other instances of the application.
+        </dd>
+
+        <dt>blankaspect.app.auxDir</dt>
+        <dd class="wrap">
+          This property determines the location of the application&apos;s <a
+          href="#section3-1">configuration file</a>.
+        </dd>
+
+        <dt>blankaspect.app.noConfigFile</dt>
+        <dd class="wrap">
+          This property controls the use of a <a href="#section3-2">configuration file</a> by
+          the application.
+        </dd>
+
+        <dt class="multi">
+          mainWindowDelay.size<br/>
+          mainWindowDelay.location<br/>
+          mainWindowDelay.opacity
+        </dt>
+        <dd class="wrap">
+          The values of these properties are the durations (in milliseconds) of the three <a
+          href="#sectionC-1">delays</a> that are applied after the main window of the
+          application is displayed.  The delays are applied in the order <i>size</i> &ndash;
+          <i>location</i> &ndash; <i>opacity</i>.
+        </dd>
+
+        <dt>useStyleSheetFile</dt>
+        <dd class="wrap">
+          This property may be used by developers for debugging a CSS style sheet.  If its value
+          is <code>true</code>, the style sheets that are generated by <code>StyleManager</code>
+          will be written to a temporary file; otherwise, the style sheets will be <a
+          class="external" href="https://en.wikipedia.org/wiki/Data_URI_scheme">data-scheme</a>
+          URIs.
+        </dd>
+
+        <dt class="multi">
+          dirBrowserWindowDelay.size<br/>
+          dirBrowserWindowDelay.location<br/>
+          dirBrowserWindowDelay.opacity
+        </dt>
+        <dd class="wrap">
+          The values of these properties are the durations (in milliseconds) of the three <a
+          href="#sectionC-1">delays</a> that are applied after a directory-browser window is
+          displayed.  The delays are applied in the order <i>size</i> &ndash; <i>location</i>
+          &ndash; <i>opacity</i>.
+        </dd>
+
+        <dt class="multi">
+          blankaspect.ui.jfx.locationChooser.dialog.windowDelay.size<br/>
+          blankaspect.ui.jfx.locationChooser.dialog.windowDelay.location<br/>
+          blankaspect.ui.jfx.locationChooser.dialog.windowDelay.opacity
+        </dt>
+        <dd class="wrap">
+          The values of these properties are the durations (in milliseconds) of the three <a
+          href="#sectionC-1">delays</a> that are applied after an instance of
+          <code>LocationChooser.Dialog</code> is displayed.  The delays are applied in the order
+          <i>size</i> &ndash; <i>location</i> &ndash; <i>opacity</i>.
+        </dd>
+
+        <dt class="multi">
+          blankaspect.ui.jfx.simpleDialog.windowDelay.size<br/>
+          blankaspect.ui.jfx.simpleDialog.windowDelay.location<br/>
+          blankaspect.ui.jfx.simpleDialog.windowDelay.opacity
+        </dt>
+        <dd class="wrap">
+          The values of these properties are the durations (in milliseconds) of the three <a
+          href="#sectionC-1">delays</a> that are applied after an instance of
+          <code>SimpleDialog</code> is displayed.  The delays are applied in the order
+          <i>size</i> &ndash; <i>location</i> &ndash; <i>opacity</i>.
+        </dd>
+
+        <dt class="multi">
+          blankaspect.ui.jfx.simpleProgressDialog.windowDelay.size<br/>
+          blankaspect.ui.jfx.simpleProgressDialog.windowDelay.location<br/>
+          blankaspect.ui.jfx.simpleProgressDialog.windowDelay.opacity
+        </dt>
+        <dd class="wrap">
+          The values of these properties are the durations (in milliseconds) of the three <a
+          href="#sectionC-1">delays</a> that are applied after an instance of
+          <code>SimpleProgressDialog</code> is displayed.  The delays are applied in the order
+          <i>size</i> &ndash; <i>location</i> &ndash; <i>opacity</i>.
+        </dd>
+
+      </dl>
+
+      <h3 id="sectionC-1">C.1&nbsp; Window delays</h3>
+
+      <p class="wrap">
+        Most of the system properties listed above are delays that have been introduced as a
+        workaround for a persistent problem in JavaFX that has been observed on Linux/GNOME when
+        the size or location of a window is changed after it first appears.  The default values
+        for the delays have been chosen in a trade-off between two kinds of poor user
+        experience: the shrinking of a window, which is the observable symptom of the problem,
+        versus the unpleasant visual effect of moving the window after it has appeared on the
+        screen.  The default values were determined by experiment on a single machine running
+        Ubuntu.  They may not be appropriate for other machines and systems, so the delays have
+        been exposed as system properties so that users can modify them.  The property values
+        are expected to be integers and the units are milliseconds.
+      </p>
+      <p class="wrap">
+        Although the problem is not present in JavaFX on Windows, the same set of delays are
+        applied to simplify the code.  This was deemed acceptable because the unpleasant effect
+        of moving a visible window is avoided by setting the opacity of the window to 0 before
+        it is shown, then setting the opacity to 1 after the size and location of the window
+        have been changed.  Sadly, the same trick doesn&apos;t work on Linux/GNOME because it
+        seems that GNOME doesn&apos;t allow the opacity of a window to be changed.
+      </p>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- The plain-text file format -->
+
+    <div class="section">
+      <h2 id="sectionD">Appendix D:&nbsp; The plain-text file format</h2>
+      <p class="tocLink">
+        [ <a href="#toc">Table of contents</a> ]
+      </p>
+
+      <p class="wrap">
+        SudokuGenerator supports two file formats for puzzles and templates: a JSON format,
+        which is recommended for general use, and a plain-text format, which is intended to
+        allow files to be created and edited manually.  The plain-text format is also used by
+        the commands for <a href="#section5-2-2">copying</a> and <a
+        href="#section5-2-3">pasting</a> text.  In this appendix, a file in plain-text format is
+        referred to as a <i>text file</i>.
+      </p>
+
+      <h3 id="sectionD-1">D.1&nbsp; Examples of the format</h3>
+
+      <p class="wrap">
+        To inform the description of the plain-text format in the following sections, here are
+        two examples of the format.
+      </p>
+      <p class="noBottomMargin wrap">
+        The first example is a minimal document that contains
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          a comment-prefix character,
+        </li>
+        <li class="wrap">
+          an implicit symbol-definition line comprising only a placeholder, and
+        </li>
+        <li class="wrap">
+          the rows of an <a class="definition" href="#def-order">order-3</a> puzzle.
+        </li>
+      </ul>
+      <div>
+      <pre class="codeFragment">#
+.
+..9....2.
+6....8...
+...7....5
+.3..9.6..
+...1.5...
+..2.6..7.
+4....3...
+...2....9
+.6....8..</pre>
+      </div>
+
+      <p class="noBottomMargin wrap">
+        The second example is a puzzle that was written to a file by SudokuGenerator.  The
+        puzzle is the same as the previous example except for the replacement of the default
+        symbols by letters, which requires an an explicit symbol-definition line.  The document
+        contains
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          a basic descriptive comment (<code>*3</code> denotes the <a class="definition"
+          href="#def-order">order</a> of the puzzle),
+        </li>
+        <li class="wrap">
+          a symbol-definition line,
+        </li>
+        <li class="wrap">
+          a comment that serves as a separator, and
+        </li>
+        <li class="wrap">
+          the puzzle rows in which <a class="definition" href="#def-block">blocks</a> are
+          separated by spaces and empty lines.
+        </li>
+      </ul>
+      <div>
+      <pre class="codeFragment"># Sudoku *3
+.ABCDEFGHJ
+#------------
+..J  ...  .B.
+F..  ..H  ...
+...  G..  ..E
+
+.C.  .J.  F..
+...  A.E  ...
+..B  .F.  .G.
+
+D..  ..C  ...
+...  B..  ..J
+.F.  ...  H..</pre>
+      </div>
+
+      <h3 id="sectionD-2">D.2&nbsp; The lines of a text file</h3>
+
+      <p class="noBottomMargin wrap">
+        A text file contains text encoded as UTF-8 and consisting of a sequence of lines.
+        Successive lines are separated by one of the following:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          a line feed (U+000A),
+        </li>
+        <li class="wrap">
+          a carriage return (U+000D) not followed by a line feed,
+        </li>
+        <li class="wrap">
+          a carriage return followed by a line feed (U+000D, U+000A).
+        </li>
+      </ul>
+      <p class="noBottomMargin wrap">
+        A file must contain the following lines, in the order given:
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          a <a href="#sectionD-2-2">comment line</a>, which defines the file&apos;s
+          <i>comment-prefix character</i>,
+        </li>
+        <li class="wrap">
+          a <a href="#sectionD-2-3">symbol-definition line</a>,
+        </li>
+        <li class="wrap">
+          <i>n</i>&nbsp;&times;&nbsp;<i>n</i> <a href="#sectionD-2-4">puzzle rows</a>, where
+          <i>n</i> is the order of the puzzle.
+        </li>
+      </ul>
+      <p class="wrap">
+        There may also be <a href="#sectionD-2-1">blank lines</a> anywhere in the file, and
+        there may be additional comment lines anywhere after the first comment line.
+      </p>
+
+      <h4 id="sectionD-2-1">D.2.1&nbsp; Blank line</h4>
+      <p class="wrap">
+        A <b>blank line</b> is empty or contains only <a href="#sectionD-3">ignored
+        characters</a>.
+      </p>
+
+      <h4 id="sectionD-2-2">D.2.2&nbsp; Comment line</h4>
+      <p class="wrap">
+        A <b>comment line</b> contains zero or more ignored characters followed by a <a
+        href="#sectionD-4">comment</a>.  A comment line is generally equivalent to a blank line
+        in that it is ignored.  However, the first comment line of a file is significant because
+        it defines the <i>comment-prefix character</i> that applies to the file.
+      </p>
+
+      <h4 id="sectionD-2-3">D.2.3&nbsp; Symbol-definition line</h4>
+      <p class="wrap">
+        The <b>symbol-definition line</b> must start with a <i>placeholder character</i>, which
+        denotes an empty grid cell in a <a href="#sectionD-2-4">puzzle row</a>.  The placeholder
+        character may optionally be followed by a character for each of the
+        <i>n</i>&nbsp;&times;&nbsp;<i>n</i> symbols of a puzzle of <a class="definition"
+        href="#def-order">order</a> <i>n</i>.  These are the symbols that are expected to appear
+        in the puzzle rows of the file.  If the symbols are omitted, the application&apos;s
+        default symbols for the puzzle order will be assumed.  The application&apos;s default
+        symbols are the initial values of the <a href="#section6-2-2">default symbols</a> user
+        preference:
+      </p>
+      <table class="twoColumnShaded">
+        <tr>
+          <td class="shaded">Order 2</td>
+          <td>
+            1 2 3 4
+          </td>
+        </tr>
+        <tr>
+          <td class="shaded">Order 3</td>
+          <td>
+            1 2 3 4 5 6 7 8 9
+          </td>
+        </tr>
+        <tr>
+          <td class="shaded">Order 4</td>
+          <td>
+            A B C D E F G H J K L M N O P Q
+          </td>
+        </tr>
+        <tr>
+          <td class="shaded">Order 5</td>
+          <td>
+            A B C D E F G H J K L M N O P Q R S T U V W X Y Z
+          </td>
+        </tr>
+      </table>
+      <p class="wrap">
+        Note that the default symbols of order-4 and order-5 puzzles do not contain the letter
+        <code>I</code>.  In addition to the mandatory placeholder character and the optional
+        symbols, the symbol-definition line may contain ignored characters and a trailing
+        comment, which is ignored.  The symbol-definition line must be the first line of the
+        file that is neither a blank line nor a comment line.
+      </p>
+
+      <h4 id="sectionD-2-4">D.2.4&nbsp; Puzzle row</h4>
+      <p class="noBottomMargin wrap">
+        A <b>puzzle row</b> must contain <i>n</i>&nbsp;&times;&nbsp;<i>n</i> significant
+        characters, where <i>n</i> is the order of the puzzle.  A significant character is
+        either
+      </p>
+      <ul class="continuationList">
+        <li class="wrap">
+          the placeholder character from the symbol-definition line, which denotes an empty
+          cell, or
+        </li>
+        <li class="wrap">
+          a symbol that was specified explicitly or implicitly in the symbol-definition line.
+        </li>
+      </ul>
+
+      <h3 id="sectionD-3">D.3&nbsp; Ignored characters</h3>
+
+      <p class="wrap">
+        An <i>ignored character</i> is a character whose <a class="external"
+        href="https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-4/#G124142">Unicode
+        general category</a> is one of the following:
+      </p>
+      <table class="twoColumnShaded">
+        <tr>
+          <td class="shaded">Zs</td>
+          <td>Space_Separator</td>
+        </tr>
+        <tr>
+          <td class="shaded">Zl</td>
+          <td>Line_Separator</td>
+        </tr>
+        <tr>
+          <td class="shaded">Zp</td>
+          <td>Paragraph_Separator</td>
+        </tr>
+        <tr>
+          <td class="shaded">Cf</td>
+          <td>Format</td>
+        </tr>
+        <tr>
+          <td class="shaded">Cs</td>
+          <td>Surrogate</td>
+        </tr>
+        <tr>
+          <td class="shaded">Co</td>
+          <td>Private_Use</td>
+        </tr>
+        <tr>
+          <td class="shaded">Cn</td>
+          <td>Unassigned</td>
+        </tr>
+      </table>
+      <p class="wrap">
+        Ignored characters include spaces (U+0020) and tabs (U+0009).
+      </p>
+
+      <h3 id="sectionD-4">D.4&nbsp; Comments</h3>
+
+      <p class="wrap">
+        A <i>comment</i> is the optional part of a line of a text file that starts at the first
+        <i>comment-prefix character</i> in the line and ends at the end of the line.
+      </p>
+      <p class="wrap">
+        The comment-prefix character is defined as the first character of the first non-blank
+        line of the file that is not an <a href="#sectionD-3">ignored character</a>.  In other
+        words, the first non-blank line of a file is taken to be a comment line, and the first
+        significant character of that line is taken to be the comment prefix for the whole file.
+      </p>
+      <p class="wrap">
+        A comment may contain any characters except for those that mark the end of a line; all
+        the characters in the comment, including the comment prefix, are ignored.  The effect of
+        a comment-prefix character does not extend beyond the line in which it appears.
+      </p>
+
+      <h3 id="sectionD-5">D.5&nbsp; Parsing a text file</h3>
+
+      <p class="wrap">
+        The following steps are performed when parsing a file in plain-text format:
+      </p>
+      <ol class="list">
+        <li class="spaced wrap">
+          All <a href="#sectionD-3">ignored characters</a> are removed from each line of the
+          file.
+        </li>
+        <li class="spaced wrap">
+          The first non-empty line is deemed to be a <a href="#sectionD-2-2">comment line</a>,
+          and the first character of the line is deemed to be the comment-prefix character.
+        </li>
+        <li class="spaced wrap">
+          For each line that contains a comment-prefix character, the trailing part of the line
+          from the comment-prefix character to the end of the line is removed.
+        </li>
+        <li class="spaced wrap">
+          All <a href="#sectionD-2-1">blank lines</a> are removed.
+        </li>
+        <li class="spaced wrap">
+          There are expected to be <i>n</i>&nbsp;&times;&nbsp;<i>n</i>&nbsp;+&nbsp;1 remaining
+          lines for a puzzle of order <i>n</i>: the <a href="#sectionD-2-3">symbol-definition
+          line</a> followed by the <i>n</i>&nbsp;&times;&nbsp;<i>n</i> rows of the puzzle.  The
+          order of the puzzle (2, 3, 4 or 5) is inferred from the number of remaining lines.
+          The file is malformed if the number is not 5, 10, 17 or 26.
+        </li>
+        <li class="spaced wrap">
+          The symbol-definition line is expected to contain either a single character or
+          <i>n</i>&nbsp;&times;&nbsp;<i>n</i>&nbsp;+&nbsp;1 characters for a puzzle of order
+          <i>n</i>, and each <a href="#sectionD-2-4">puzzle row</a> is expected to contain
+          <i>n</i>&nbsp;&times;&nbsp;<i>n</i> characters.  The file is malformed if any line
+          does not contain the expected number of characters.
+        </li>
+        <li class="spaced wrap">
+          The placeholder character is extracted from the first line, which is now the
+          symbol-definition line.  If the length of the line is greater than 1, the symbols are
+          extracted from it; otherwise, the default symbols for the inferred order of the puzzle
+          are used.  It is an error if any character occurs more than once in the line.
+        </li>
+        <li class="spaced wrap">
+          The remaining lines are parsed as puzzle rows, and the cell values of the puzzle are
+          set to the result.  It is an error if a line contains a character other than a symbol
+          or the placeholder.
+        </li>
+      </ol>
+
+    </div>
+
+    <!--=====================================================================================-->
+
+    <!-- Footer -->
+
+    <div id="lastModified">
+      <div>
+        <div>
+          Last modified: 2026-05-09
+        </div>
+        <div class="image">
+          <a class="hideHover" href="http://validator.w3.org/check?uri=referer">
+            <img alt="XHTML 1.1" src="images/valid-xhtml11-blue.png"/>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

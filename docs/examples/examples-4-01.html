@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+   PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <meta
+       http-equiv="content-type"
+       content="application/xhtml+xml;charset=UTF-8"/>
+    <title>Sudoku</title>
+    <style type="text/css" media="print,screen">
+      /*<![CDATA[*/
+      body {
+        margin: 0.5em;
+      }
+      div.grid {
+        display: table;
+        border-collapse: collapse;
+        border: 3px solid;
+        font: 12pt sans-serif;
+      }
+      div.grid > div {
+        display: table-row;
+      }
+      div.grid > div > div {
+        display: table-cell;
+        width: 1.6em;
+        height: 1.6em;
+        border: 1px solid;
+        vertical-align: middle;
+        text-align: center;
+      }
+      div.grid > div > div.wide-border-left {
+        border-left: 3px solid;
+      }
+      div.grid > div.wide-border-top > div {
+        border-top: 3px solid;
+      }
+      div.outerGrid {
+        display: table;
+        border: none;
+        border-spacing: 1.5em;
+      }
+      div.outerGrid > div {
+        display: table-row;
+      }
+      div.outerGrid > div > div {
+        display: table-cell;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --border-color: #A0A0A0;
+        }
+        body {
+          color: #000000;
+          background-color: #F6F6F2;
+        }
+        div.grid {
+          border-color: var(--border-color);
+        }
+        div.grid > div > div {
+          border-color: var(--border-color);
+        }
+        div.grid > div > div.wide-border-left {
+          border-left-color: var(--border-color);
+        }
+        div.grid > div.wide-border-top > div {
+          border-top-color: var(--border-color);
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --border-color: #787878;
+        }
+        body {
+          color: #F4F4F4;
+          background-color: #202020;
+        }
+        div.grid {
+          border-color: var(--border-color);
+        }
+        div.grid > div > div {
+          border-color: var(--border-color);
+        }
+        div.grid > div > div.wide-border-left {
+          border-left-color: var(--border-color);
+        }
+        div.grid > div.wide-border-top > div {
+          border-top-color: var(--border-color);
+        }
+      }
+      /*]]>*/
+    </style>
+  </head>
+
+  <body>
+    <div class="outerGrid">
+      <div>
+        <div>
+          <div id="puzzle1" class="grid">
+            <div id="p1-1">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>F</div>
+              <div>A</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>E</div>
+              <div>H</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-2">
+              <div></div>
+              <div>H</div>
+              <div>B</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>Q</div>
+              <div></div>
+              <div>M</div>
+              <div class="wide-border-left">N</div>
+              <div></div>
+              <div>P</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>G</div>
+              <div>K</div>
+              <div></div>
+            </div>
+            <div id="p1-3">
+              <div></div>
+              <div>Q</div>
+              <div></div>
+              <div>C</div>
+              <div class="wide-border-left"></div>
+              <div>O</div>
+              <div></div>
+              <div>P</div>
+              <div class="wide-border-left">K</div>
+              <div></div>
+              <div>L</div>
+              <div></div>
+              <div class="wide-border-left">E</div>
+              <div></div>
+              <div>F</div>
+              <div></div>
+            </div>
+            <div id="p1-4">
+              <div></div>
+              <div></div>
+              <div>D</div>
+              <div>F</div>
+              <div class="wide-border-left"></div>
+              <div>B</div>
+              <div></div>
+              <div>E</div>
+              <div class="wide-border-left">C</div>
+              <div></div>
+              <div>G</div>
+              <div></div>
+              <div class="wide-border-left">L</div>
+              <div>J</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-5" class="wide-border-top">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>J</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>D</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-6">
+              <div></div>
+              <div>D</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>E</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>L</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>N</div>
+              <div></div>
+            </div>
+            <div id="p1-7">
+              <div>M</div>
+              <div>O</div>
+              <div>J</div>
+              <div></div>
+              <div class="wide-border-left">L</div>
+              <div>C</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>N</div>
+              <div>H</div>
+              <div class="wide-border-left"></div>
+              <div>B</div>
+              <div>A</div>
+              <div>Q</div>
+            </div>
+            <div id="p1-8">
+              <div></div>
+              <div></div>
+              <div>Q</div>
+              <div>P</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">F</div>
+              <div>O</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-9" class="wide-border-top">
+              <div></div>
+              <div></div>
+              <div>F</div>
+              <div>A</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">G</div>
+              <div>M</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-10">
+              <div>P</div>
+              <div>G</div>
+              <div>H</div>
+              <div></div>
+              <div class="wide-border-left">D</div>
+              <div>K</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>E</div>
+              <div>O</div>
+              <div class="wide-border-left"></div>
+              <div>C</div>
+              <div>L</div>
+              <div>N</div>
+            </div>
+            <div id="p1-11">
+              <div></div>
+              <div>M</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>B</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>C</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>O</div>
+              <div></div>
+            </div>
+            <div id="p1-12">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>H</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>J</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-13" class="wide-border-top">
+              <div></div>
+              <div></div>
+              <div>A</div>
+              <div>O</div>
+              <div class="wide-border-left"></div>
+              <div>G</div>
+              <div></div>
+              <div>H</div>
+              <div class="wide-border-left">J</div>
+              <div></div>
+              <div>D</div>
+              <div></div>
+              <div class="wide-border-left">M</div>
+              <div>L</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p1-14">
+              <div></div>
+              <div>B</div>
+              <div></div>
+              <div>K</div>
+              <div class="wide-border-left"></div>
+              <div>E</div>
+              <div></div>
+              <div>Q</div>
+              <div class="wide-border-left">P</div>
+              <div></div>
+              <div>F</div>
+              <div></div>
+              <div class="wide-border-left">O</div>
+              <div></div>
+              <div>J</div>
+              <div></div>
+            </div>
+            <div id="p1-15">
+              <div></div>
+              <div>L</div>
+              <div>M</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>D</div>
+              <div></div>
+              <div>C</div>
+              <div class="wide-border-left">G</div>
+              <div></div>
+              <div>B</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>A</div>
+              <div>H</div>
+              <div></div>
+            </div>
+            <div id="p1-16">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>M</div>
+              <div>N</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>Q</div>
+              <div>A</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <div id="puzzle2" class="grid">
+            <div id="p2-1">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div>F</div>
+              <div class="wide-border-left">P</div>
+              <div>C</div>
+              <div>E</div>
+              <div>L</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div>H</div>
+              <div class="wide-border-left">Q</div>
+              <div>A</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-2">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div>K</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div>G</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>O</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>P</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-3">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">H</div>
+              <div>Q</div>
+              <div>K</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>B</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">F</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-4">
+              <div>P</div>
+              <div>J</div>
+              <div>G</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">F</div>
+              <div></div>
+              <div></div>
+              <div>D</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>C</div>
+              <div>M</div>
+            </div>
+            <div id="p2-5" class="wide-border-top">
+              <div>L</div>
+              <div></div>
+              <div></div>
+              <div>M</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div>N</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>C</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>G</div>
+              <div></div>
+              <div>F</div>
+            </div>
+            <div id="p2-6">
+              <div></div>
+              <div>G</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">M</div>
+              <div></div>
+              <div></div>
+              <div>B</div>
+              <div class="wide-border-left">E</div>
+              <div>A</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">D</div>
+              <div></div>
+              <div></div>
+              <div>Q</div>
+            </div>
+            <div id="p2-7">
+              <div></div>
+              <div></div>
+              <div>C</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>P</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>H</div>
+              <div></div>
+              <div>A</div>
+            </div>
+            <div id="p2-8">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div>Q</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>A</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>F</div>
+              <div>N</div>
+              <div>G</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>P</div>
+              <div>J</div>
+            </div>
+            <div id="p2-9" class="wide-border-top">
+              <div>B</div>
+              <div>A</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">G</div>
+              <div>D</div>
+              <div>N</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>C</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">O</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-10">
+              <div>F</div>
+              <div></div>
+              <div>P</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>D</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>K</div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-11">
+              <div>N</div>
+              <div></div>
+              <div></div>
+              <div>J</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>M</div>
+              <div>Q</div>
+              <div class="wide-border-left">A</div>
+              <div></div>
+              <div></div>
+              <div>F</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>B</div>
+              <div></div>
+            </div>
+            <div id="p2-12">
+              <div>O</div>
+              <div></div>
+              <div>Q</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>L</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">N</div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">C</div>
+              <div></div>
+              <div></div>
+              <div>H</div>
+            </div>
+            <div id="p2-13" class="wide-border-top">
+              <div>H</div>
+              <div>F</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">A</div>
+              <div></div>
+              <div></div>
+              <div>E</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>J</div>
+              <div>N</div>
+              <div>G</div>
+            </div>
+            <div id="p2-14">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div>P</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div>Q</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>G</div>
+              <div>E</div>
+              <div>A</div>
+              <div class="wide-border-left"></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-15">
+              <div></div>
+              <div></div>
+              <div>E</div>
+              <div></div>
+              <div class="wide-border-left"></div>
+              <div>H</div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">O</div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">B</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div id="p2-16">
+              <div></div>
+              <div></div>
+              <div>K</div>
+              <div>D</div>
+              <div class="wide-border-left">B</div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div class="wide-border-left">H</div>
+              <div>N</div>
+              <div>M</div>
+              <div>P</div>
+              <div class="wide-border-left">A</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

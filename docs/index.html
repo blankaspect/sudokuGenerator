@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+   PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html
+   xmlns="http://www.w3.org/1999/xhtml"
+   xml:lang="en">
+
+  <head>
+    <meta
+       http-equiv="content-type"
+       content="application/xhtml+xml;charset=UTF-8"/>
+    <meta
+       content="initial-scale=1"
+       name="viewport"/>
+    <title>SudokuGenerator : project page</title>
+    <link
+       href="style/blankaspect-common.css"
+       media="screen"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="style/blankaspect-project.css"
+       media="screen"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="style/sudokuGenerator-main.css"
+       media="screen"
+       rel="stylesheet"
+       type="text/css"/>
+    <link
+       href="images/icon-48x48.png"
+       rel="icon"/>
+  </head>
+
+  <body>
+
+    <!-- Title -->
+
+    <div id="title">
+      <div>
+        <img alt="Icon" src="images/icon-48x48.png"/>
+      </div>
+      <div>
+        SudokuGenerator
+      </div>
+    </div>
+
+
+    <!-- Description -->
+
+    <div class="section" id="description">
+      <p class="wrap">
+        SudokuGenerator is a <a class="external"
+        href="https://en.wikipedia.org/wiki/JavaFX">JavaFX</a> application whose main purpose
+        is, as its name suggests, to generate <a class="external"
+        href="https://en.wikipedia.org/wiki/Sudoku">sudoku</a> puzzles.
+      </p>
+
+      <h4>Features</h4>
+      <ul class="list">
+        <li class="spaced">
+          <div class="wrap">
+            You can generate puzzles with the following <a class="definition"
+            href="manual/manual.html#def-grid">grid</a> sizes:
+          </div>
+          <ul class="continuationList">
+            <li class="wrap">
+              4&nbsp;&times;&nbsp;4 <a class="definition"
+              href="manual/manual.html#def-cell">cells</a>
+            </li>
+            <li class="wrap">
+              9&nbsp;&times;&nbsp;9 cells
+            </li>
+            <li class="wrap">
+              16&nbsp;&times;&nbsp;16 cells
+            </li>
+            <li class="wrap">
+              25&nbsp;&times;&nbsp;25 cells
+            </li>
+          </ul>
+        </li>
+        <li class="spaced wrap">
+          You can generate a puzzle either by specifying the number of cells that should
+          initially contain <a class="definition"
+          href="manual/manual.html#def-symbol">symbols</a> or by supplying a <a
+          class="definition" href="manual/manual.html#def-template">template</a> of such cells.
+        </li>
+        <li class="spaced wrap">
+          The application has an editor for creating and modifying a template that can be used
+          to generate a puzzle.  Templates may be created with several kinds of rotational and
+          reflectional symmetry.
+        </li>
+        <li class="spaced wrap">
+          After you&apos;ve generated a puzzle, you can start to solve it in the puzzle editor,
+          where you can use the keyboard or mouse to edit <a class="definition"
+          href="manual/manual.html#def-gridEntry">grid entries</a>.  The editor has an undo/redo
+          facility.
+        </li>
+        <li class="spaced wrap">
+          You can enter a puzzle from an external source in the editor.  You can enter a puzzle
+          by typing its entries into an empty grid or by pasting text in a <a
+          href="manual/manual.html#sectionD">simple format</a>.
+        </li>
+        <li class="spaced wrap">
+          You can save a puzzle to a file and load it later.  You can open a puzzle file with a
+          command or by drag-and-drop.
+        </li>
+        <li class="spaced wrap">
+          Multiple puzzles may be open simultaneously in the application, and you can switch
+          easily between them.
+        </li>
+        <li class="spaced wrap">
+          There is a command to duplicate the current puzzle so that, after you&apos;ve
+          generated or loaded a puzzle, you can solve a copy of it in the editor without
+          modifying the original.
+        </li>
+        <li class="spaced wrap">
+          When you&apos;re solving a puzzle, the application can check whether the current
+          entries will yield a unique solution.  It can also assist you by finding the correct
+          entry for an empty cell that you&apos;ve selected.
+        </li>
+        <li class="spaced wrap">
+          The application can solve a <a class="definition"
+          href="manual/manual.html#def-wellPosedPuzzle">well-posed puzzle</a> and display the
+          solution.  It can find and display multiple solutions for a <a class="definition"
+          href="manual/manual.html#def-validPuzzle">valid puzzle</a> that is not well-posed.
+        </li>
+        <li class="spaced wrap">
+          You can transform a puzzle by flipping it horizontally or vertically, or by rotating
+          it by 90&deg; or 180&deg; (a quarter-turn or a half-turn).  A well-posed puzzle will
+          remain well-posed after such a transformation.
+        </li>
+        <li class="spaced wrap">
+          You can copy a textual representation of the current puzzle or an image of the puzzle
+          to the system clipboard.
+        </li>
+        <li class="spaced wrap">
+          You can export one or more puzzles to an HTML document.  If you export multiple
+          puzzles, they will be arranged in a table with a selectable number of columns.
+        </li>
+        <li class="spaced wrap">
+          There is a modeless directory-browser window in which you can display an overview of
+          the puzzles and/or templates in a chosen directory in tabular form.  You can select
+          multiple files in the browser and open them in the main window or export them to an
+          HTML document.
+        </li>
+      </ul>
+
+      <h4>Links</h4>
+      <ul class="list">
+        <li class="spaced">
+          <a href="https://github.com/blankaspect/sudokuGenerator">Source code</a>
+        </li>
+        <li class="spaced">
+          <div>
+            <a href="manual/manual.html">Manual</a> &nbsp;(Single HTML file)
+          </div>
+          <div class="smallText1 wrap">
+            (JavaScript must be enabled in your browser in order to generate the manual&apos;s
+            table of contents.)
+          </div>
+        </li>
+        <li class="spaced">
+          <a href="images/screenshot-light.png">Screenshot, light colour scheme</a>
+        </li>
+        <li class="spaced">
+          <a href="images/screenshot-dark.png">Screenshot, dark colour scheme</a>
+        </li>
+        <li class="spaced wrap">
+          <a href="examples/examples-3-01.html">Examples, 9&times;9 grid</a> &nbsp;&bull;&nbsp;
+          Symbols: <code>1</code> &ndash; <code>9</code>
+        </li>
+        <li class="spaced wrap">
+          <a href="examples/examples-4-01.html">Examples, 16&times;16 grid</a>
+          &nbsp;&bull;&nbsp; Symbols: <code>A</code> &ndash; <code>Q</code>, not <code>I</code>
+        </li>
+      </ul>
+
+      <h4>Licence</h4>
+      <p class="wrap">
+        SudokuGenerator is made available under three licences:
+      </p>
+      <ul class="list">
+        <li class="spaced wrap">
+          The contents of the <code>uk.blankaspect.sudokugenerator</code> package (including
+          resources) may be used under the terms and conditions of version 3 of the <a
+          class="external" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public
+          License</a>.
+        </li>
+        <li class="spaced wrap">
+          The Roboto Mono fonts may be used under the terms and conditions of version 1.1 of the
+          <a class="external"
+          href="https://openfontlicense.org/open-font-license-official-text/">SIL Open Font
+          License</a>.
+        </li>
+        <li class="spaced wrap">
+          All other contents of the <a
+          href="https://github.com/blankaspect/sudokuGenerator">blankaspect/sudokuGenerator</a>
+          repository may be used under the terms and conditions of the <a class="external"
+          href="https://mit-license.org/">MIT License</a>.
+        </li>
+      </ul>
+    </div>
+
+
+    <!-- Footer -->
+
+    <div id="lastModified">
+      <div>
+        <div>
+          Last modified: 2026-05-09
+        </div>
+        <div class="image">
+          <a class="hideHover" href="http://validator.w3.org/check?uri=referer">
+            <img alt="XHTML 1.1" src="images/valid-xhtml11-blue.png"/>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </body>
+
+</html>

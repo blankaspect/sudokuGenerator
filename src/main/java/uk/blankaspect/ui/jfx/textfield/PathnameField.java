@@ -1,0 +1,873 @@
+/*====================================================================*\
+
+PathnameField.java
+
+Class: pathname field.
+
+\*====================================================================*/
+
+
+// PACKAGE
+
+
+package uk.blankaspect.ui.jfx.textfield;
+
+//----------------------------------------------------------------------
+
+
+// IMPORTS
+
+
+import java.io.File;
+
+import java.lang.invoke.MethodHandles;
+
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+
+import java.util.List;
+
+import java.util.function.Predicate;
+
+import javafx.css.PseudoClass;
+
+import javafx.event.Event;
+import javafx.event.EventType;
+
+import javafx.geometry.Bounds;
+
+import javafx.scene.control.TextField;
+
+import javafx.scene.input.TransferMode;
+
+import javafx.scene.paint.Color;
+
+import uk.blankaspect.common.css.CssSelector;
+
+import uk.blankaspect.common.filesystem.PathnameUtils;
+import uk.blankaspect.common.filesystem.PathUtils;
+
+import uk.blankaspect.common.string.StringUtils;
+
+import uk.blankaspect.ui.jfx.clipboard.ClipboardUtils;
+
+import uk.blankaspect.ui.jfx.colour.ColourUtils;
+
+import uk.blankaspect.ui.jfx.image.MessageIcon24;
+
+import uk.blankaspect.ui.jfx.locationchooser.LocationChooser;
+
+import uk.blankaspect.ui.jfx.popup.MessagePopUp;
+
+import uk.blankaspect.ui.jfx.style.ColourProperty;
+import uk.blankaspect.ui.jfx.style.FxProperty;
+import uk.blankaspect.ui.jfx.style.FxStyleClass;
+import uk.blankaspect.ui.jfx.style.StyleConstants;
+import uk.blankaspect.ui.jfx.style.StyleManager;
+import uk.blankaspect.ui.jfx.style.StyleUtils;
+
+//----------------------------------------------------------------------
+
+
+// CLASS: PATHNAME FIELD
+
+
+/**
+ * This class implements a text field in which a pathname of a file or directory may be edited.
+ * <p>
+ * The methods {@link #getPathname()} and {@link #getLocation()} expand special constructs for system properties,
+ * environment variables and the user's home directory:
+ * </p>
+ * <ol>
+ *   <li>
+ *     If the first character of the pathname is '~', the '~' is replaced by the absolute pathname of the user's home
+ *     directory.
+ *   </li>
+ *   <li>
+ *     For each substring of the pathname that has the form "${&lt;<i>name</i>&gt;}", where &lt;<i>name</i>&gt; matches
+ *     the name of a system property or environment variable, the substring is replaced by the value of the property or
+ *     variable.  A system property takes precedence over an environment variable with the same name.
+ *   </li>
+ * </ol>
+ * <p>
+ * If a field is editable, a pathname may be imported into it by dragging a file from, for example, a file browser and
+ * dropping it onto the field.
+ * </p>
+ */
+
+public class PathnameField
+	extends TextField
+{
+
+////////////////////////////////////////////////////////////////////////
+//  Constants
+////////////////////////////////////////////////////////////////////////
+
+	/** The default number of columns of the text field. */
+	public static final		int	DEFAULT_NUM_COLUMNS	= 40;
+
+	/** A file-system location matcher that matches regular files. */
+	public static final		Predicate<Path>	FILE_MATCHER	=
+			location -> Files.isRegularFile(location, LinkOption.NOFOLLOW_LINKS);
+
+	/** A file-system location matcher that matches directories. */
+	public static final		Predicate<Path>	DIRECTORY_MATCHER	=
+			location -> Files.isDirectory(location, LinkOption.NOFOLLOW_LINKS);
+
+	/** The pseudo-class that is associated with the <i>invalid</i> state. */
+	private static final	PseudoClass	PSEUDO_CLASS_INVALID	= PseudoClass.getPseudoClass(PseudoClassKey.INVALID);
+
+	/** CSS colour properties. */
+	private static final	List<ColourProperty>	COLOUR_PROPERTIES	= List.of
+	(
+		ColourProperty.of
+		(
+			FxProperty.CONTROL_INNER_BACKGROUND,
+			ColourKey.BACKGROUND_INVALID,
+			CssSelector.builder()
+					.cls(StyleClass.PATHNAME_FIELD).pseudo(PseudoClassKey.INVALID)
+					.build()
+		),
+		ColourProperty.of
+		(
+			FxProperty.BACKGROUND_COLOUR,
+			ColourKey.CONTEXT_MENU_BACKGROUND,
+			CssSelector.builder()
+					.cls(StyleClass.PATHNAME_FIELD)
+					.desc(FxStyleClass.CONTEXT_MENU)
+					.build()
+		)
+	);
+
+	/** CSS style classes. */
+	private interface StyleClass
+	{
+		String	PATHNAME_FIELD	= StyleConstants.CLASS_PREFIX + "pathname-field";
+	}
+
+	/** Keys of CSS pseudo-classes. */
+	private interface PseudoClassKey
+	{
+		String	INVALID	= "invalid";
+	}
+
+	/** Keys of colours that are used in colour properties. */
+	private interface ColourKey
+	{
+		String	PREFIX	= StyleManager.colourKeyPrefix(MethodHandles.lookup().lookupClass().getEnclosingClass());
+
+		String	BACKGROUND_INVALID		= PREFIX + "background.invalid";
+		String	CONTEXT_MENU_BACKGROUND	= PREFIX + "contextMenu.background";
+	}
+
+	/** Error messages. */
+	private interface ErrorMsg
+	{
+		String	NOT_A_VALID_PATHNAME =
+				"'%s' is not a valid pathname.";
+	}
+
+////////////////////////////////////////////////////////////////////////
+//  Instance variables
+////////////////////////////////////////////////////////////////////////
+
+	/** The matcher that is applied to file-system locations by drag-and-drop event handlers and {@link #paste()}. */
+	private	Predicate<Path>	locationMatcher;
+
+	/** Flag: if {@code true}, {@link #getLocation()} displays an error message if an {@link InvalidPathException} is
+		thrown. */
+	private	boolean			showInvalidPathnameError;
+
+	/** The pop-up window in which {@link #getLocation()} displays an error message if an {@link InvalidPathException}
+		is thrown. */
+	private	MessagePopUp	invalidPathnamePopUp;
+
+////////////////////////////////////////////////////////////////////////
+//  Static initialiser
+////////////////////////////////////////////////////////////////////////
+
+	static
+	{
+		// Register the style properties of this class with the style manager
+		StyleManager.INSTANCE.register(PathnameField.class, COLOUR_PROPERTIES);
+	}
+
+////////////////////////////////////////////////////////////////////////
+//  Constructors
+////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Creates a new instance of an empty pathname field.  The field has the {@linkplain #DEFAULT_NUM_COLUMNS default
+	 * number of columns}.
+	 */
+
+	public PathnameField()
+	{
+		// Call alternative constructor
+		this(DEFAULT_NUM_COLUMNS);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Creates a new instance of a pathname field that is initialised with the specified pathname.  The field has the
+	 * {@linkplain #DEFAULT_NUM_COLUMNS default number of columns}.
+	 *
+	 * @param pathname
+	 *          the pathname with which the field will be initialised.
+	 */
+
+	public PathnameField(
+		String	pathname)
+	{
+		// Call alternative constructor
+		this(pathname, DEFAULT_NUM_COLUMNS);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Creates a new instance of a pathname field that is initialised with the specified {@linkplain Path location}.
+	 * The field has the {@linkplain #DEFAULT_NUM_COLUMNS default number of columns}.
+	 *
+	 * @param location
+	 *          the location with whose pathname the field will be initialised.
+	 */
+
+	public PathnameField(
+		Path	location)
+	{
+		// Call alternative constructor
+		this(location, DEFAULT_NUM_COLUMNS);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Creates a new instance of an empty pathname field.  The field has the specified number of columns.
+	 *
+	 * @param numColumns
+	 *          the preferred number of columns of the field, ignored if zero or negative.
+	 */
+
+	public PathnameField(
+		int	numColumns)
+	{
+		// Set preferred number of columns
+		if (numColumns > 0)
+			setPrefColumnCount(numColumns);
+
+		// Set style class
+		getStyleClass().add(StyleClass.PATHNAME_FIELD);
+
+		// Update background colour when content of field changes
+		textProperty().addListener(observable ->
+		{
+			// Hide 'invalid pathname' pop-up
+			hideInvalidPathnamePopUp();
+
+			// Update background colour
+			try
+			{
+				// Test pathname
+				if (!isEmpty())
+					Path.of(getPathname());
+
+				// Clear 'invalid' style
+				pseudoClassStateChanged(PSEUDO_CLASS_INVALID, false);
+				if (StyleManager.INSTANCE.notUsingStyleSheet())
+					setStyle(null);
+			}
+			catch (InvalidPathException e)
+			{
+				// Set 'invalid' style
+				pseudoClassStateChanged(PSEUDO_CLASS_INVALID, true);
+				if (StyleManager.INSTANCE.notUsingStyleSheet())
+				{
+					StyleUtils.setProperty(this, FxProperty.CONTROL_INNER_BACKGROUND.getName(),
+										   ColourUtils.colourToHexString(getColour(ColourKey.BACKGROUND_INVALID)));
+				}
+			}
+		});
+
+		// Handle 'drag over' events
+		setOnDragOver(event ->
+		{
+			// Test whether field is editable and clipboard contains matching file-system locations
+			if (isEditable() && ClipboardUtils.locationMatches(event.getDragboard(), locationMatcher))
+				event.acceptTransferModes(TransferMode.COPY);
+
+			// Consume event
+			event.consume();
+		});
+
+		// Handle 'drag dropped' events
+		setOnDragDropped(event ->
+		{
+			// Get first matching file-system location from dragboard
+			Path location = ClipboardUtils.firstMatchingLocation(event.getDragboard(), locationMatcher);
+
+			// Indicate that drag-and-drop is complete
+			event.setDropCompleted(true);
+
+			// If there is a location, set text to its absolute pathname
+			if (location != null)
+			{
+				// Set text to absolute pathname of first file
+				setLocation(location);
+
+				// Position caret at end of text
+				end();
+
+				// Notify listeners of import
+				fireEvent(new PathnameEvent(PathnameEvent.PATHNAME_IMPORTED, this));
+			}
+
+			// Consume event
+			event.consume();
+		});
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Creates a new instance of a pathname field that is initialised with the specified pathname.  The field has the
+	 * specified number of columns.
+	 *
+	 * @param pathname
+	 *          the pathname with which the field will be initialised.
+	 * @param numColumns
+	 *          the preferred number of columns of the field, ignored if zero or negative.
+	 */
+
+	public PathnameField(
+		String	pathname,
+		int		numColumns)
+	{
+		// Call alternative constructor
+		this(numColumns);
+
+		// Set properties
+		setPathname(pathname);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Creates a new instance of a pathname field that is initialised with the specified {@linkplain Path location}.
+	 * The field has the specified number of columns.
+	 *
+	 * @param location
+	 *          the location with which the field will be initialised.
+	 * @param numColumns
+	 *          the number of columns of the field.
+	 */
+
+	public PathnameField(
+		Path	location,
+		int		numColumns)
+	{
+		// Call alternative constructor
+		this(numColumns);
+
+		// Set properties
+		if (location != null)
+			setLocation(location);
+	}
+
+	//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////
+//  Class methods
+////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Converts the specified location to an absolute pathname and returns the result.
+	 *
+	 * @param  location
+	 *           the location that will be converted to an absolute pathname.  The location may be {@code null}.
+	 * @return the absolute pathname of {@code location}, or {@code null} if {@code location} is {@code null}.
+	 */
+
+	private static String locationToPathname(
+		Path	location)
+	{
+		return (location == null) ? null : PathUtils.absString(location);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Replaces all occurrences of '/' in the specified pathname with the system's line separator and returns the
+	 * result.
+	 *
+	 * @param  pathname
+	 *           the pathname that will be denormalised.  The pathname may be {@code null}.
+	 * @return {@code pathname} with all occurrences of '/' replaced with the system's line separator, or {@code null}
+	 *         if {@code pathname} is {@code null}.
+	 */
+
+	private static String denormalisePathname(
+		String	pathname)
+	{
+		return (pathname == null) ? null : pathname.replace('/', File.separatorChar);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Returns the colour that is associated with the specified key in the colour map of the current theme of the
+	 * {@linkplain StyleManager style manager}.
+	 *
+	 * @param  key
+	 *           the key of the desired colour.
+	 * @return the colour that is associated with {@code key} in the colour map of the current theme of the style
+	 *         manager, or {@link StyleManager#DEFAULT_COLOUR} if there is no such colour.
+	 */
+
+	private static Color getColour(
+		String	key)
+	{
+		return StyleManager.INSTANCE.getColourOrDefault(key);
+	}
+
+	//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////
+//  Instance methods : overriding methods
+////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * {@inheritDoc}
+	 */
+
+	@Override
+	public void paste()
+	{
+		// If system clipboard has a matching location, set it on this field ...
+		if (ClipboardUtils.locationMatches(locationMatcher))
+		{
+			// Get first matching location from system clipboard
+			Path location = ClipboardUtils.firstMatchingLocation(locationMatcher);
+
+			// If there is a location, set text to its absolute pathname
+			if (location != null)
+			{
+				// Set text to absolute pathname of first file
+				setLocation(location);
+
+				// Position caret at end of text
+				end();
+
+				// Notify listeners of import
+				fireEvent(new PathnameEvent(PathnameEvent.PATHNAME_IMPORTED, this));
+			}
+		}
+
+		// ... otherwise, call superclass method to paste text into this field
+		else
+			super.paste();
+	}
+
+	//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////
+//  Instance methods
+////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Returns the text of this field (the pathname) after applying the following steps to it:
+	 * <ol>
+	 *   <li>
+	 *     If the first character of the pathname is '~', the '~' is replaced by the absolute pathname of the user's
+	 *     home directory.
+	 *   </li>
+	 *   <li>
+	 *     For each substring of the pathname that has the form "${&lt;<i>name</i>&gt;}", where &lt;<i>name</i>&gt;
+	 *     matches the name of a system property or environment variable, the substring is replaced by the value of the
+	 *     property or variable.  A system property takes precedence over an environment variable with the same name.
+	 *   </li>
+	 * </ol>
+	 *
+	 * @return the text of this field after applying the steps described above.
+	 */
+
+	public String getPathname()
+	{
+		return PathnameUtils.parsePathname(getText());
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Returns the text of this field as a {@linkplain Path location} after applying the steps described in {@link
+	 * #getPathname()}.  If the pathname is invalid, an error message is displayed in a pop-up window below the field.
+	 *
+	 * @return the text of this field as a {@linkplain Path location} after applying the steps described in {@link
+	 *         #getPathname()}, or {@code null} if the field is empty or the return value of {@link #getPathname()} is
+	 *         not a valid pathname.
+	 */
+
+	public Path getLocation()
+	{
+		Path location = null;
+		String pathname = getPathname();
+		if (!StringUtils.isNullOrEmpty(pathname))
+		{
+			try
+			{
+				location = Path.of(pathname);
+			}
+			catch (InvalidPathException e)
+			{
+				// Hide 'invalid pathname' pop-up
+				hideInvalidPathnamePopUp();
+
+				// Show 'invalid pathname' pop-up
+				if (showInvalidPathnameError)
+				{
+					invalidPathnamePopUp = new MessagePopUp(MessageIcon24.ERROR,
+															String.format(ErrorMsg.NOT_A_VALID_PATHNAME, pathname));
+					Bounds bounds = localToScreen(getLayoutBounds());
+					if (bounds != null)
+						invalidPathnamePopUp.show(this, bounds.getMinX(), bounds.getMaxY() - 1.0);
+				}
+			}
+		}
+		return location;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Returns {@code true} if this field is empty.
+	 *
+	 * @return {@code true} if this field is empty.
+	 */
+
+	public boolean isEmpty()
+	{
+		return (getLength() == 0);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Returns {@code true} if the text of this field satisfies all of the following:
+	 * <ul>
+	 *   <li>it is not {@code null},</li>
+	 *   <li>it is not empty,</li>
+	 *   <li>it not a valid pathname.</li>
+	 * </ul>
+	 *
+	 * @return {@code true} if the text of this field is not {@code null} AND it is not empty AND it is not a valid
+	 *         pathname.
+	 */
+
+	public boolean isInvalid()
+	{
+		String pathname = getPathname();
+		if (!StringUtils.isNullOrEmpty(pathname))
+		{
+			try
+			{
+				Path.of(pathname);
+			}
+			catch (InvalidPathException e)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the text of this field to the specified pathname.
+	 *
+	 * @param pathname
+	 *          the pathname that will set on this field.
+	 */
+
+	public void setPathname(
+		String	pathname)
+	{
+		setText(denormalisePathname(pathname));
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the text of this field to the absolute pathname of the specified location.
+	 *
+	 * @param location
+	 *          the location to whose absolute pathname the text of this field will be set.
+	 */
+
+	public void setLocation(
+		Path	location)
+	{
+		setPathname(locationToPathname(location));
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the matcher that is applied to file-system locations by drag-and-drop event handlers and {@link #paste()}.
+	 *
+	 * @param matcher
+	 *          the function that will be applied to file-system locations.  If it is {@code null}, all locations will
+	 *          match.
+	 */
+
+	public void setLocationMatcher(
+		Predicate<Path>	matcher)
+	{
+		locationMatcher = matcher;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the flag that controls whether {@link #getLocation()} displays an error message if an {@link
+	 * InvalidPathException} is thrown.
+	 *
+	 * @param showError
+	 *          if {@code true}, {@link #getLocation()} will display an error message if an {@link InvalidPathException}
+	 *          is thrown.
+	 */
+
+	public void setShowInvalidPathnameError(
+		boolean	showError)
+	{
+		showInvalidPathnameError = showError;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the initial directory and filename of the specified location chooser from the location that is returned by
+	 * {@link #getLocation()}, if it is valid.
+	 * <p>
+	 * If the location that is returned by {@link #getLocation()} is not {@code null}, the following steps are
+	 * performed:
+	 * </p>
+	 * <ol>
+	 *   <li>
+	 *     The initial filename of the chooser is set to the filename of the location.
+	 *   </li>
+	 *   <li>
+	 *     The location is made absolute and its parent directory (referred to subsequently as <i>the parent</i>) is
+	 *     extracted.
+	 *   </li>
+	 *   <li>
+	 *     If the parent denotes an existing directory, the initial directory of the chooser is set to the parent.
+	 *   </li>
+	 * </ol>
+	 * <p>
+	 * If {@link #getLocation()} returns {@code null}, there is no effect on the location chooser.
+	 * </p>
+	 *
+	 * @param chooser
+	 *          the location chooser that will be initialised.
+	 */
+
+	public void initChooser(
+		LocationChooser	chooser)
+	{
+		Path location = getLocation();
+		if (location != null)
+		{
+			chooser.setInitialFilename(location.getFileName().toString());
+			chooser.initDirectoryWithParent(location);
+		}
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the initial directory and filename of the specified location chooser from the location that is returned by
+	 * {@link #getLocation()}, if it is valid; otherwise, sets the initial directory of the chooser to the specified
+	 * default location, which is expected to exist.
+	 * <p>
+	 * If the location that is returned by {@link #getLocation()} is not {@code null}, the following steps are
+	 * performed:
+	 * </p>
+	 * <ol>
+	 *   <li>
+	 *     The initial filename of the chooser is set to the filename of the location.
+	 *   </li>
+	 *   <li>
+	 *     The location is made absolute and its parent directory (referred to subsequently as <i>the parent</i>) is
+	 *     extracted.
+	 *   </li>
+	 *   <li>
+	 *     If the parent denotes an existing directory, the initial directory of the chooser is set to the parent.
+	 *   </li>
+	 *   <li>
+	 *     If the parent does not denote an existing directory, the initial directory of the chooser is set to the
+	 *     default location.
+	 *   </li>
+	 * </ol>
+	 * <p>
+	 * If {@link #getLocation()} returns {@code null}, the initial directory of the chooser is set to the specified
+	 * default location.
+	 * </p>
+	 *
+	 * @param chooser
+	 *          the location chooser that will be initialised.
+	 * @param defaultDirectory
+	 *          the location of the default initial directory.
+	 */
+
+	public void initChooser(
+		LocationChooser	chooser,
+		Path			defaultDirectory)
+	{
+		Path location = getLocation();
+		if (location != null)
+			chooser.setInitialFilename(location.getFileName().toString());
+		chooser.initDirectoryWithParent(location, defaultDirectory);
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Sets the initial directory and filename of the specified location chooser from the location that is returned by
+	 * {@link #getLocation()}, if it is valid; otherwise, sets the initial directory of the chooser to one of two
+	 * specified default locations, as described below.
+	 * <p>
+	 * If the location that is returned by {@link #getLocation()} is not {@code null}, the following steps are
+	 * performed:
+	 * </p>
+	 * <ol>
+	 *   <li>
+	 *     The initial filename of the chooser is set to the filename of the location.
+	 *   </li>
+	 *   <li>
+	 *     The location is made absolute and its parent directory (referred to subsequently as <i>the parent</i>) is
+	 *     extracted.
+	 *   </li>
+	 *   <li>
+	 *     If the parent denotes an existing directory, the initial directory of the chooser is set to the parent.
+	 *   </li>
+	 *   <li>
+	 *     If the parent does not denote an existing directory and the first default location denotes an existing
+	 *     directory, the initial directory of the chooser is set to the first default location.
+	 *   </li>
+	 *   <li>
+	 *     If neither the parent nor the first default location denotes an existing directory, the initial directory of
+	 *     the chooser is set to the second default location.
+	 *   </li>
+	 * </ol>
+	 * <p>
+	 * If {@link #getLocation()} returns {@code null}, the initial directory of the chooser is set to one of the default
+	 * locations as described in steps 4 and 5 above.
+	 * </p>
+	 *
+	 * @param chooser
+	 *          the location chooser that will be initialised.
+	 * @param defaultDirectory1
+	 *          the location of the first default initial directory.
+	 * @param defaultDirectory2
+	 *          the location of the second default initial directory.
+	 */
+
+	public void initChooser(
+		LocationChooser	chooser,
+		Path			defaultDirectory1,
+		Path			defaultDirectory2)
+	{
+		initChooser(chooser, LocationChooser.existingDirectory(defaultDirectory1, defaultDirectory2));
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Hides the pop-up window in which {@link #getLocation()} displays an error message if an {@link
+	 * InvalidPathException} is thrown.
+	 */
+
+	protected void hideInvalidPathnamePopUp()
+	{
+		if (invalidPathnamePopUp != null)
+		{
+			invalidPathnamePopUp.hide();
+			invalidPathnamePopUp = null;
+		}
+	}
+
+	//------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////
+//  Member classes : non-inner classes
+////////////////////////////////////////////////////////////////////////
+
+
+	// CLASS: PATHNAME-FIELD EVENT
+
+
+	/**
+	 * This class implements an event that is fired by a {@linkplain PathnameField pathname field}.
+	 */
+
+	public static class PathnameEvent
+		extends Event
+	{
+
+	////////////////////////////////////////////////////////////////////
+	//  Constants
+	////////////////////////////////////////////////////////////////////
+
+		/** An event that signals that a pathname has been imported into the field. */
+		public static final	EventType<PathnameEvent>	PATHNAME_IMPORTED	= new EventType<>("PATHNAME_IMPORTED");
+
+	////////////////////////////////////////////////////////////////////
+	//  Constructors
+	////////////////////////////////////////////////////////////////////
+
+		/**
+		 * Creates a new instance of an event of the specified type and for the specified source.
+		 *
+		 * @param eventType
+		 *          the type of the event.
+		 * @param source
+		 *          the source of the event.
+		 */
+
+		private PathnameEvent(
+			EventType<PathnameEvent>	eventType,
+			PathnameField				source)
+		{
+			// Call superclass constructor
+			super(source, null, eventType);
+		}
+
+		//--------------------------------------------------------------
+
+	////////////////////////////////////////////////////////////////////
+	//  Instance methods : overriding methods
+	////////////////////////////////////////////////////////////////////
+
+		/**
+		 * {@inheritDoc}
+		 */
+
+		@Override
+		public PathnameField getSource()
+		{
+			return (PathnameField)source;
+		}
+
+		//--------------------------------------------------------------
+
+	}
+
+	//==================================================================
+
+}
+
+//----------------------------------------------------------------------
