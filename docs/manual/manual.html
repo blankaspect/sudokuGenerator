@@ -687,22 +687,56 @@
         The directory-browser window is a modeless window that can be displayed from the main
         window of SudokuGenerator with the <a class="command" href="#section5-1-12">File &gt;
         Browse directory</a> command (F12).  The window contains a grid view of representations
-        of all the SudokuGenerator puzzle files and/or template files in a chosen directory.
+        of the SudokuGenerator puzzle files and/or template files in a chosen directory after a
+        configurable filter has been applied.
       </p>
       <p class="wrap">
-        The puzzles cannot be modified in the directory-browser window; the main purposes of the
-        window are to provide an overview of a collection of puzzles and to allow multiple
-        puzzles to be selected for opening and for export as an HTML document.
+        The browser window provides an overview of a collection of puzzle files.  Multiple files
+        may be selected in the browser window and opened in the main window or exported to an
+        HTML file.  Files cannot be modified in the browser window.
       </p>
       <p class="wrap">
         At the top of the browser window is a bar that contains two groups of buttons.  The
-        first button in the group on the left triggers a drop-down dialog that contains two
-        controls: a spinner for the number of columns in the grid and a spinner that applies a
-        filter to the files that are displayed in the window.  The second button allows you to
-        choose the directory whose files will be displayed in the window.  The pathname of
-        directory is shown in the title of the window.  The third button refreshes the contents
-        of the window to reflect external changes to the directory.
+        buttons in the group on the left are associated with the following commands, from left
+        to right:
       </p>
+      <dl class="basic">
+        <dt class="noBold"><span class="command">Choose directory</span> (F12)</dt>
+        <dd class="wrap">
+          This command triggers a dialog in which you can choose the directory whose files will
+          be shown in the browser window.
+        </dd>
+        <dt class="noBold"><span class="command">Filter</span> (Ctrl+F)</dt>
+        <dd>
+          <div class="noBottomMargin wrap">
+            This command triggers a drop-down modal dialog that presents some criteria by which
+            you can restrict the files that are shown in the browser window.  You can filter the
+            files by
+          </div>
+          <ul class="continuationList">
+            <li class="wrap">
+              the kind of file (puzzle or template),
+            </li>
+            <li class="wrap">
+              the <a class="definition" href="#def-order">order</a> of a puzzle, and
+            </li>
+            <li class="wrap">
+              for each order, a range of the number of <a class="definition"
+              href="#def-gridEntry">entries</a> in a puzzle.
+            </li>
+          </ul>
+        </dd>
+        <dt class="noBold"><span class="command">Number of columns</span> (Ctrl+M)</dt>
+        <dd class="wrap">
+          This command triggers a drop-down modal dialog in which you can choose the number of
+          columns in the grid view of the browser window.
+        </dd>
+        <dt class="noBold"><span class="command">Refresh</span> (F5)</dt>
+        <dd class="wrap">
+          This command refreshes the contents of the browser window to reflect external changes
+          to the current directory.
+        </dd>
+      </dl>
       <p class="wrap">
         On the right of the button bar are a pair of buttons for selecting and deselecting all
         the files in the browser window.  An individual file may be selected by clicking the
@@ -856,8 +890,10 @@
         The <span class="command">Browse directory</span> command (F12) first displays a dialog
         in which you can choose the directory whose puzzle files and/or template files you wish
         to browse.  After you&apos;ve chosen a directory, the relevant files in the directory
-        are displayed in the <a class="component" href="#section4-2">directory-browser
-        window</a>.
+        are shown in the <a class="component" href="#section4-2">directory-browser window</a>.
+        The displayed files may be filtered by the kind of file (puzzle or template), the <a
+        class="definition" href="#def-order">order</a> of a puzzle and the number of <a
+        class="definition" href="#def-gridEntry">entries</a> in a puzzle.
       </p>
 
       <h4 id="section5-1-13">5.1.13&nbsp; <span class="command">File &gt; Exit</span></h4>
@@ -974,9 +1010,9 @@
       </ul>
       <p class="wrap">
         Note that the time taken to execute the <span class="command">Find entry for selected
-        cell</span> command can vary widely depending on the puzzle.  It will usually be a
-        fraction of a second for an <a class="definition" href="#def-order">order-3</a> puzzle,
-        but it can be several minutes for a particularly tricky order-5 puzzle.
+        cell</span> command can vary widely depending on the puzzle.  It will usually be less
+        than a second for an <a class="definition" href="#def-order">order-3</a> puzzle, but it
+        can be several minutes for a particularly tricky order-5 puzzle.
       </p>
 
       <h4 id="section5-4-3">5.4.3&nbsp; <span class="command">Puzzle &gt; Solve</span></h4>
@@ -1683,10 +1719,10 @@
 
     <!--=====================================================================================-->
 
-    <!-- Glossary of terms -->
+    <!-- Glossary -->
 
     <div class="section">
-      <h2 id="sectionA">Appendix A:&nbsp; Glossary of terms</h2>
+      <h2 id="sectionA">Appendix A:&nbsp; Glossary</h2>
       <p class="tocLink">
         [ <a href="#toc">Table of contents</a> ]
       </p>
@@ -2397,7 +2433,7 @@ D..  ..C  ...
     <div id="lastModified">
       <div>
         <div>
-          Last modified: 2026-05-09
+          Last modified: 2026-05-12
         </div>
         <div class="image">
           <a class="hideHover" href="http://validator.w3.org/check?uri=referer">
