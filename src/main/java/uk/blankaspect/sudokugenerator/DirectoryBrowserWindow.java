@@ -23,8 +23,14 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javafx.concurrent.Task;
 
@@ -42,6 +48,8 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -67,6 +75,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.paint.Color;
@@ -79,7 +88,10 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
+import uk.blankaspect.common.basictree.IntNode;
+import uk.blankaspect.common.basictree.ListNode;
 import uk.blankaspect.common.basictree.MapNode;
+import uk.blankaspect.common.basictree.StringNode;
 
 import uk.blankaspect.common.css.CssRuleSet;
 import uk.blankaspect.common.css.CssSelector;
@@ -90,7 +102,12 @@ import uk.blankaspect.common.filesystem.DirectoryUtils;
 import uk.blankaspect.common.filesystem.PathnameUtils;
 import uk.blankaspect.common.filesystem.PathUtils;
 
+import uk.blankaspect.common.function.IFunction0;
+import uk.blankaspect.common.function.IFunction1;
+import uk.blankaspect.common.function.IFunction2;
+import uk.blankaspect.common.function.IProcedure0;
 import uk.blankaspect.common.function.IProcedure1;
+import uk.blankaspect.common.function.IProcedure2;
 
 import uk.blankaspect.common.message.MessageConstants;
 
@@ -98,9 +115,11 @@ import uk.blankaspect.common.misc.SystemUtils;
 
 import uk.blankaspect.common.number.NumberUtils;
 
-import uk.blankaspect.common.string.StringUtils;
+import uk.blankaspect.common.range2.IntegerRange;
 
 import uk.blankaspect.ui.jfx.button.ImageButton;
+
+import uk.blankaspect.ui.jfx.container.LabelTitledPane;
 
 import uk.blankaspect.ui.jfx.dialog.ErrorDialog;
 import uk.blankaspect.ui.jfx.dialog.SimpleProgressDialog;
@@ -116,13 +135,14 @@ import uk.blankaspect.ui.jfx.label.OverlayLabel;
 
 import uk.blankaspect.ui.jfx.locationchooser.LocationChooser;
 
+import uk.blankaspect.ui.jfx.range.IntegerRangePane;
+
 import uk.blankaspect.ui.jfx.scene.SceneUtils;
 
 import uk.blankaspect.ui.jfx.scrollpane.ScrollPaneUtils;
 
 import uk.blankaspect.ui.jfx.shape.Shapes;
 
-import uk.blankaspect.ui.jfx.spinner.CollectionSpinner;
 import uk.blankaspect.ui.jfx.spinner.SpinnerFactory;
 
 import uk.blankaspect.ui.jfx.style.ColourProperty;
@@ -197,12 +217,6 @@ class DirectoryBrowserWindow
 	/** The horizontal gap between adjacent components in a container. */
 	private static final	double	CONTROL_H_GAP	= 6.0;
 
-	/** The vertical gap between adjacent components in a container. */
-	private static final	double	CONTROL_V_GAP	= 8.0;
-
-	/** The padding around the control pane. */
-	private static final	Insets	CONTROL_PANE_PADDING	= new Insets(8.0, 12.0, 8.0, 12.0);
-
 	/** The factor by which the size of the default font is multiplied to give the size of the font of the placeholder
 		label. */
 	private static final	double	PLACEHOLDER_LABEL_FONT_SIZE_FACTOR	= 1.25;
@@ -214,11 +228,16 @@ class DirectoryBrowserWindow
 	/** The default initial directory of the directory chooser. */
 	private static final	Path	DEFAULT_DIRECTORY	= SystemUtils.userHomeDirectory();
 
-	/** The key combination that fires the <i>show controls</i> button. */
-	private static final	KeyCombination	KEY_COMBO_SHOW_CONTROLS		= new KeyCodeCombination(KeyCode.F1);
-
 	/** The key combination that fires the <i>choose directory</i> button. */
 	private static final	KeyCombination	KEY_COMBO_CHOOSE_DIRECTORY	= new KeyCodeCombination(KeyCode.F12);
+
+	/** The key combination that fires the <i>filter</i> button. */
+	private static final	KeyCombination	KEY_COMBO_FILTER			=
+			new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+
+	/** The key combination that fires the <i>number of columns</i> button. */
+	private static final	KeyCombination	KEY_COMBO_NUM_COLUMNS		=
+			new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
 
 	/** The key combination that fires the <i>refresh</i> button. */
 	private static final	KeyCombination	KEY_COMBO_REFRESH			= new KeyCodeCombination(KeyCode.F5);
@@ -237,7 +256,6 @@ class DirectoryBrowserWindow
 	/** Miscellaneous strings. */
 	private static final	String	ELLIPSIS_STR			= "...";
 	private static final	String	NO_MATCHING_FILES_STR	= "No matching files";
-	private static final	String	SHOW_CONTROLS_STR		= "Show controls (F1)";
 	private static final	String	REFRESH_FILES_STR		= "Refresh files (F5)";
 	private static final	String	NUM_SELECTED_STR		= "Number of selected files";
 	private static final	String	SELECT_ALL_STR			= "Select all files";
@@ -477,6 +495,7 @@ class DirectoryBrowserWindow
 	private	Path								directory;
 	private	IProcedure1<List<PuzzleDocument>>	openAction;
 	private	IProcedure1<List<Puzzle>>			exportAction;
+	private	List<FileInfo>						fileInfos;
 	private	Filter								filter;
 	private	int									numFiles;
 	private	Label								numSelectedLabel;
@@ -484,7 +503,6 @@ class DirectoryBrowserWindow
 	private	Label								placeholderLabel;
 	private	MultiPuzzlePane						multiPuzzlePane;
 	private	ScrollPane							scrollPane;
-	private	ControlDialog						controlDialog;
 
 ////////////////////////////////////////////////////////////////////////
 //  Static initialiser
@@ -510,6 +528,7 @@ class DirectoryBrowserWindow
 		this.directory = directory;
 		this.openAction = openAction;
 		this.exportAction = exportAction;
+		fileInfos = Collections.emptyList();
 		filter = state.filter;
 		numFiles = -1;
 
@@ -520,36 +539,50 @@ class DirectoryBrowserWindow
 		// Make window invisible until it is displayed
 		setOpacity(0.0);
 
-		// Button: show controls
-		ImageButton showControlsButton = Images.imageButton(Images.ImageId.ARROWHEAD_DOWN, SHOW_CONTROLS_STR);
-		showControlsButton.setOnAction(event ->
+		// Create function to return tooltip text
+		IFunction2<String, String, KeyCombination> tooltipText = (text, keyCombo) ->
+				text + " (" + keyCombo.getDisplayText() + ")";
+
+		// Create procedure to show control dialog
+		IProcedure2<ImageButton, Pane> showControlDialog = (button, contentPane) ->
 		{
-			// Disable 'show controls' button
-			showControlsButton.setDisable(true);
+			// Disable button
+			button.setDisable(true);
 
 			// Create control dialog
-			controlDialog = new ControlDialog();
+			ControlDialog controlDialog = new ControlDialog(this, contentPane);
 
-			// Enable 'show controls' button when control dialog is closed
-			controlDialog.setOnHiding(event0 -> showControlsButton.setDisable(false));
+			// Enable button when dialog is closed
+			controlDialog.setOnHiding(event -> button.setDisable(false));
 
 			// Show control dialog
 			Bounds bounds = buttonPane.localToScreen(buttonPane.getLayoutBounds());
-			controlDialog.setX(bounds.getMinX() + 4.0);
+			controlDialog.setX(bounds.getMinX());
 			controlDialog.setY(bounds.getMaxY());
 			controlDialog.show();
-		});
+		};
 
 		// Button: choose directory
 		ImageButton chooseDirectoryButton = Images.imageButton(Images.ImageId.DIRECTORY, CHOOSE_DIRECTORY1_STR);
 		chooseDirectoryButton.setOnAction(event -> onChooseDirectory());
+
+		// Button: filter
+		ImageButton filterButton = Images.imageButton(Images.ImageId.FILTER,
+													  tooltipText.invoke(FilterPane.FILTER_STR, KEY_COMBO_FILTER));
+		filterButton.setOnAction(event -> showControlDialog.invoke(filterButton, new FilterPane()));
+
+		// Button: number of columns
+		ImageButton numColumnsButton =
+				Images.imageButton(Images.ImageId.COLUMNS,
+								   tooltipText.invoke(NumColumnsPane.NUM_COLUMNS_STR, KEY_COMBO_NUM_COLUMNS));
+		numColumnsButton.setOnAction(event -> showControlDialog.invoke(numColumnsButton, new NumColumnsPane()));
 
 		// Button: refresh
 		ImageButton refreshButton = Images.imageButton(Images.ImageId.REFRESH, REFRESH_FILES_STR);
 		refreshButton.setOnAction(event -> readFiles());
 
 		// Create left button pane
-		HBox leftButtonPane = new HBox(2.0, showControlsButton, chooseDirectoryButton, refreshButton);
+		HBox leftButtonPane = new HBox(2.0, chooseDirectoryButton, filterButton, numColumnsButton, refreshButton);
 		leftButtonPane.setAlignment(Pos.CENTER_LEFT);
 
 		// Label: number selected
@@ -680,8 +713,9 @@ class DirectoryBrowserWindow
 		StyleManager.INSTANCE.addStyleSheet(getScene());
 
 		// Add key combinations to scene
-		getScene().getAccelerators().put(KEY_COMBO_SHOW_CONTROLS,    showControlsButton::fire);
 		getScene().getAccelerators().put(KEY_COMBO_CHOOSE_DIRECTORY, chooseDirectoryButton::fire);
+		getScene().getAccelerators().put(KEY_COMBO_FILTER,           filterButton::fire);
+		getScene().getAccelerators().put(KEY_COMBO_NUM_COLUMNS,      numColumnsButton::fire);
 		getScene().getAccelerators().put(KEY_COMBO_REFRESH,          refreshButton::fire);
 		getScene().getAccelerators().put(KEY_COMBO_INC_NUM_COLUMNS,  () -> multiPuzzlePane.incrementNumColumns(1));
 		getScene().getAccelerators().put(KEY_COMBO_DEC_NUM_COLUMNS,  () -> multiPuzzlePane.incrementNumColumns(-1));
@@ -746,7 +780,7 @@ class DirectoryBrowserWindow
 						// Make window visible
 						setOpacity(1.0);
 
-						// Read puzzles
+						// Read files
 						readFiles();
 					});
 				});
@@ -866,15 +900,11 @@ class DirectoryBrowserWindow
 //  Instance methods
 ////////////////////////////////////////////////////////////////////////
 
-	public Filter filter()
-	{
-		return filter;
-	}
-
-	//------------------------------------------------------------------
-
 	private void readFiles()
 	{
+		// Clear file information
+		fileInfos = Collections.emptyList();
+
 		// Remove all children of multi-puzzle pane
 		multiPuzzlePane.getChildren().clear();
 
@@ -908,7 +938,7 @@ class DirectoryBrowserWindow
 		// Create task to read puzzles
 		Window window = this;
 		int numFiles = vars.files.size();
-		Task<List<Puzzle.FileInfo>> task = new Task<>()
+		Task<List<FileInfo>> task = new Task<>()
 		{
 			{
 				updateTitle(READ_FILES_STR);
@@ -916,10 +946,10 @@ class DirectoryBrowserWindow
 			}
 
 			@Override
-			protected List<Puzzle.FileInfo> call()
+			protected List<FileInfo> call()
 				throws Exception
 			{
-				List<Puzzle.FileInfo> puzzles = new ArrayList<>();
+				List<FileInfo> fileInfos = new ArrayList<>();
 				for (int i = 0; i < numFiles; i++)
 				{
 					// Get next file
@@ -935,65 +965,35 @@ class DirectoryBrowserWindow
 						updateMessage(READING_STR + MessageConstants.SPACE_SEPARATOR + PathUtils.abs(file));
 
 						// Read file
-						Puzzle.FileInfo fileInfo = switch (fileKind)
+						FileInfo fileInfo = FileInfo.from(switch (fileKind)
 						{
 							case PUZZLE, TEMPLATE -> Puzzle.fromJson(file, fileKind);
 							case TEXT             -> Puzzle.fromText(file);
-						};
+						});
 
-						// If puzzle is accepted by filter, add it to list
-						if (fileInfo.template() ? filter.acceptsTemplates() : filter.acceptsPuzzles())
-						{
-							fileInfo.puzzle().editable(false);
-							puzzles.add(fileInfo);
-						}
+						// Add file to list
+						fileInfo.puzzle.editable(false);
+						fileInfos.add(fileInfo);
 					}
 
 					// Update progress
 					updateProgress(i + 1, numFiles);
 				}
-				return puzzles;
+				return fileInfos;
 			}
 
 			@Override
 			protected void succeeded()
 			{
-				// Get list of puzzles
-				List<Puzzle.FileInfo> fileInfos = getValue();
-				if (fileInfos.isEmpty())
-					return;
+				// Get result of task
+				List<FileInfo> result = getValue();
 
-				// Create document for each puzzle
-				List<PuzzleDocument> documents = new ArrayList<>();
-				for (Puzzle.FileInfo fileInfo : fileInfos)
+				// Update displayed files
+				if (!result.isEmpty())
 				{
-					Path file = fileInfo.file();
-					try
-					{
-						documents.add(new PuzzleDocument(fileInfo.puzzle(), file, FileKind.forLocation(file)));
-					}
-					catch (FileException e)
-					{
-						ErrorDialog.show(window, getTitle(), e);
-					}
+					fileInfos = result;
+					updateFiles();
 				}
-
-				// Create panes for puzzles
-				for (PuzzleDocument document : documents)
-					multiPuzzlePane.getChildren().add(new FilePane(document));
-
-				// Lay out multi-puzzle pane
-				multiPuzzlePane.layout();
-
-				// Update 'number selected' label
-				updateNumSelected();
-
-				// Make scroll pane visible
-				scrollPane.setVisible(true);
-				placeholderLabel.setVisible(false);
-
-				// Request focus on scroll pane
-				scrollPane.requestFocus();
 			}
 
 			@Override
@@ -1008,6 +1008,50 @@ class DirectoryBrowserWindow
 
 		// Execute task on background thread
 		SudokuGeneratorApp.instance().executeTask(task);
+	}
+
+	//------------------------------------------------------------------
+
+	private void updateFiles()
+	{
+		// Create document for each puzzle that is accepted by filter
+		List<PuzzleDocument> documents = new ArrayList<>();
+		for (FileInfo fileInfo : fileInfos)
+		{
+			if (filter.accepts(fileInfo))
+			{
+				try
+				{
+					Path file = directory.resolve(fileInfo.filename);
+					documents.add(new PuzzleDocument(fileInfo.puzzle, file, FileKind.forLocation(file)));
+				}
+				catch (FileException e)
+				{
+					ErrorDialog.show(this, getTitle(), e);
+				}
+			}
+		}
+
+		// Clear multi-puzzle pane and reset vertical scroll position
+		multiPuzzlePane.getChildren().clear();
+		scrollPane.setVvalue(0.0);
+
+		// Create panes for puzzles
+		for (PuzzleDocument document : documents)
+			multiPuzzlePane.getChildren().add(new FilePane(document));
+
+		// Lay out multi-puzzle pane
+		multiPuzzlePane.layout();
+
+		// Update 'number selected' label
+		updateNumSelected();
+
+		// Make scroll pane visible
+		scrollPane.setVisible(true);
+		placeholderLabel.setVisible(false);
+
+		// Request focus on scroll pane
+		scrollPane.requestFocus();
 	}
 
 	//------------------------------------------------------------------
@@ -1060,92 +1104,145 @@ class DirectoryBrowserWindow
 	//------------------------------------------------------------------
 
 ////////////////////////////////////////////////////////////////////////
-//  Enumerated types
+//  Member records
 ////////////////////////////////////////////////////////////////////////
 
 
-	// ENUMERATION: FILTER
+	// RECORD: INFORMATION ABOUT A PUZZLE FILE
 
 
-	public enum Filter
+	private record FileInfo(
+		String	filename,
+		Puzzle	puzzle,
+		boolean	template)
 	{
 
 	////////////////////////////////////////////////////////////////////
-	//  Constants
+	//  Class methods
 	////////////////////////////////////////////////////////////////////
 
-		PUZZLES
-		(
-			"Puzzles"
-		),
-
-		TEMPLATES
-		(
-			"Templates"
-		),
-
-		PUZZLES_AND_TEMPLATES
-		(
-			"Puzzles and templates"
-		);
-
-	////////////////////////////////////////////////////////////////////
-	//  Instance variables
-	////////////////////////////////////////////////////////////////////
-
-		private	String	key;
-		private	String	text;
-
-	////////////////////////////////////////////////////////////////////
-	//  Constructors
-	////////////////////////////////////////////////////////////////////
-
-		private Filter(
-			String	text)
+		private static FileInfo from(
+			Puzzle.FileInfo	fileInfo)
 		{
-			// Initialise instance variables
-			key = StringUtils.toCamelCase(name());
-			this.text = text;
+			return new FileInfo(fileInfo.file().getFileName().toString(), fileInfo.puzzle(), fileInfo.template());
 		}
 
 		//--------------------------------------------------------------
 
-	////////////////////////////////////////////////////////////////////
-	//  Instance methods : overriding methods
-	////////////////////////////////////////////////////////////////////
+	}
 
-		@Override
-		public String toString()
-		{
-			return text;
-		}
+	//==================================================================
 
-		//--------------------------------------------------------------
+
+	// RECORD: FILTER
+
+
+	private record Filter(
+		Set<FileKind>					fileKinds,
+		Map<Puzzle.Order, OrderInfo>	orderInfos)
+	{
 
 	////////////////////////////////////////////////////////////////////
 	//  Instance methods
 	////////////////////////////////////////////////////////////////////
 
-		public String key()
+		private boolean accepts(
+			FileInfo	fileInfo)
 		{
-			return key;
+			// Test file kind
+			if (!fileKinds.contains(fileInfo.template ? Filter.FileKind.TEMPLATE : Filter.FileKind.PUZZLE))
+				return false;
+
+			// Test puzzle order
+			Puzzle.Order order = fileInfo.puzzle.puzzleOrder();
+			OrderInfo orderInfo = orderInfos.get(order);
+			if (!orderInfo.orderEnabled)
+				return false;
+
+			// Test number of entries
+			return !orderInfo.numEntriesEnabled || orderInfo.numEntriesRange.contains(fileInfo.puzzle.numEntries());
 		}
 
 		//--------------------------------------------------------------
 
-		public boolean acceptsPuzzles()
+	////////////////////////////////////////////////////////////////////
+	//  Enumerated types
+	////////////////////////////////////////////////////////////////////
+
+
+		// ENUMERATION: KINDS OF FILE
+
+
+		private enum FileKind
 		{
-			return (this == PUZZLES) || (this == PUZZLES_AND_TEMPLATES);
+
+		////////////////////////////////////////////////////////////////
+		//  Constants
+		////////////////////////////////////////////////////////////////
+
+			PUZZLE
+			(
+				"Puzzle"
+			),
+
+			TEMPLATE
+			(
+				"Template"
+			);
+
+		////////////////////////////////////////////////////////////////
+		//  Instance variables
+		////////////////////////////////////////////////////////////////
+
+			private	String	key;
+			private	String	text;
+
+		////////////////////////////////////////////////////////////////
+		//  Constructors
+		////////////////////////////////////////////////////////////////
+
+			private FileKind(
+				String	text)
+			{
+				// Initialise instance variables
+				key = name().toLowerCase();
+				this.text = text;
+			}
+
+			//----------------------------------------------------------
+
+		////////////////////////////////////////////////////////////////
+		//  Class methods
+		////////////////////////////////////////////////////////////////
+
+			private static FileKind forKey(
+				String	key)
+			{
+				return Arrays.stream(values()).filter(value -> value.key.equals(key)).findFirst().orElse(null);
+			}
+
+			//----------------------------------------------------------
+
 		}
 
-		//--------------------------------------------------------------
+		//==============================================================
 
-		public boolean acceptsTemplates()
-		{
-			return (this == TEMPLATES) || (this == PUZZLES_AND_TEMPLATES);
-		}
+	////////////////////////////////////////////////////////////////////
+	//  Member records
+	////////////////////////////////////////////////////////////////////
 
-		//--------------------------------------------------------------
+
+		// RECORD: ORDER INFORMATION
+
+
+		private record OrderInfo(
+			boolean			orderEnabled,
+			IntegerRange	numEntriesRange,
+			boolean			numEntriesEnabled,
+			boolean			numEntriesLinked)
+		{ }
+
+		//==============================================================
 
 	}
 
@@ -1167,14 +1264,21 @@ class DirectoryBrowserWindow
 	//  Constants
 	////////////////////////////////////////////////////////////////////
 
-		private static final	Filter	DEFAULT_FILTER	= Filter.PUZZLES;
+		private static final	Filter	DEFAULT_FILTER;
 
 		/** Keys of properties. */
 		private interface PropertyKey
 		{
-			String	DIRECTORY	= "directory";
-			String	FILTER		= "filter";
-			String	NUM_COLUMNS	= "numColumns";
+			String	DIRECTORY			= "directory";
+			String	ENABLED				= "enabled";
+			String	FILE_KINDS			= "fileKinds";
+			String	FILTER				= "filter";
+			String	NUM_COLUMNS			= "numColumns";
+			String	NUM_ENTRIES			= "numEntries";
+			String	NUM_ENTRIES_ENABLED	= "numEntriesEnabled";
+			String	NUM_ENTRIES_LINKED	= "numEntriesLinked";
+			String	ORDER				= "order";
+			String	ORDERS				= "orders";
 		}
 
 	////////////////////////////////////////////////////////////////////
@@ -1184,6 +1288,18 @@ class DirectoryBrowserWindow
 		private	Path	directory;
 		private	int		numColumns;
 		private	Filter	filter;
+
+	////////////////////////////////////////////////////////////////////
+	//  Static initialiser
+	////////////////////////////////////////////////////////////////////
+
+		static
+		{
+			EnumMap<Puzzle.Order, Filter.OrderInfo> orderInfos = new EnumMap<>(Puzzle.Order.class);
+			for (Puzzle.Order order : Puzzle.Order.values())
+				orderInfos.put(order, new Filter.OrderInfo(true, new IntegerRange(1, order.pow4() - 1), false, false));
+			DEFAULT_FILTER	= new Filter(EnumSet.allOf(Filter.FileKind.class), orderInfos);
+		}
 
 	////////////////////////////////////////////////////////////////////
 	//  Constructors
@@ -1219,11 +1335,28 @@ class DirectoryBrowserWindow
 			if (directory != null)
 				rootNode.addString(PropertyKey.DIRECTORY, PathUtils.absStringStd(directory));
 
+			// Encode filter
+			MapNode filterNode = rootNode.addMap(PropertyKey.FILTER);
+
+			ListNode fileKindsNode = filterNode.addList(PropertyKey.FILE_KINDS);
+			for (Filter.FileKind fileKind : filter.fileKinds)
+				fileKindsNode.addString(fileKind.key);
+
+			ListNode ordersNode = filterNode.addList(PropertyKey.ORDERS);
+			for (Puzzle.Order order : filter.orderInfos.keySet())
+			{
+				Filter.OrderInfo orderInfo = filter.orderInfos.get(order);
+				IntegerRange range = orderInfo.numEntriesRange;
+				MapNode orderNode = ordersNode.addMap();
+				orderNode.addInt(PropertyKey.ORDER, order.value());
+				orderNode.addBoolean(PropertyKey.ENABLED, orderInfo.orderEnabled);
+				orderNode.addList(PropertyKey.NUM_ENTRIES).addInts(range.lowerEndpoint(), range.upperEndpoint());
+				orderNode.addBoolean(PropertyKey.NUM_ENTRIES_ENABLED, orderInfo.numEntriesEnabled);
+				orderNode.addBoolean(PropertyKey.NUM_ENTRIES_LINKED, orderInfo.numEntriesLinked);
+			}
+
 			// Encode number of columns
 			rootNode.addInt(PropertyKey.NUM_COLUMNS, numColumns);
-
-			// Encode filter
-			rootNode.addString(PropertyKey.FILTER, filter.key);
 
 			// Return root node
 			return rootNode;
@@ -1247,11 +1380,64 @@ class DirectoryBrowserWindow
 			if (rootNode.hasString(key))
 				directory = Path.of(rootNode.getString(key));
 
+			// Decode filter
+			key = PropertyKey.FILTER;
+			if (rootNode.hasMap(key))
+			{
+				// Decode file kinds
+				EnumSet<Filter.FileKind> fileKinds = EnumSet.noneOf(Filter.FileKind.class);
+				MapNode filterNode = rootNode.getMapNode(key);
+				key = PropertyKey.FILE_KINDS;
+				if (filterNode.hasList(key))
+				{
+					for (StringNode node : filterNode.getListNode(key).stringNodes())
+					{
+						Filter.FileKind fileKind = Filter.FileKind.forKey(node.getValue());
+						if (fileKind != null)
+							fileKinds.add(fileKind);
+					}
+				}
+
+				// Decode order information
+				EnumMap<Puzzle.Order, Filter.OrderInfo> orderInfos = new EnumMap<>(DEFAULT_FILTER.orderInfos);
+				key = PropertyKey.ORDERS;
+				if (filterNode.hasList(key))
+				{
+					for (MapNode orderNode : filterNode.getListNode(key).mapNodes())
+					{
+						Puzzle.Order order = Puzzle.Order.forValue(orderNode.getInt(PropertyKey.ORDER, 0));
+						if (order != null)
+						{
+							Filter.OrderInfo orderInfo = orderInfos.get(order);
+							boolean orderEnabled = orderNode.getBoolean(PropertyKey.ENABLED, orderInfo.orderEnabled);
+
+							IntegerRange range = orderInfo.numEntriesRange;
+							key = PropertyKey.NUM_ENTRIES;
+							if (orderNode.hasList(key))
+							{
+								List<IntNode> nodes = orderNode.getListNode(key).intNodes();
+								if (nodes.size() >= 2)
+									range = IntegerRange.of(nodes.get(0).getValue(), nodes.get(1).getValue());
+							}
+
+							boolean numEntriesEnabled = orderNode.getBoolean(PropertyKey.NUM_ENTRIES_ENABLED,
+																			 orderInfo.numEntriesEnabled);
+
+							boolean numEntriesLinked = orderNode.getBoolean(PropertyKey.NUM_ENTRIES_LINKED,
+																			orderInfo.numEntriesLinked);
+
+							orderInfos.put(order, new Filter.OrderInfo(orderEnabled, range, numEntriesEnabled,
+																	   numEntriesLinked));
+						}
+					}
+				}
+
+				// Update filter
+				filter = new Filter(fileKinds, orderInfos);
+			}
+
 			// Decode number of columns
 			numColumns = rootNode.getInt(PropertyKey.NUM_COLUMNS, DEFAULT_NUM_COLUMNS);
-
-			// Decode filter
-			filter = rootNode.getEnumValue(Filter.class, PropertyKey.FILTER, Filter::key, DEFAULT_FILTER);
 		}
 
 		//--------------------------------------------------------------
@@ -1481,6 +1667,105 @@ class DirectoryBrowserWindow
 
 	//==================================================================
 
+
+	// CLASS: CONTROL DIALOG
+
+
+	private static class ControlDialog
+		extends Stage
+	{
+
+	////////////////////////////////////////////////////////////////////
+	//  Constants
+	////////////////////////////////////////////////////////////////////
+
+		/** The logical size of the <i>cross</i> icon. */
+		private static final	double	CROSS_ICON_SIZE	= 0.85 * TextUtils.textHeight();
+
+		/** The padding around the <i>close</i> lacbel. */
+		private static final	Insets	CLOSE_LABEL_PADDING	= new Insets(5.0);
+
+		/** The delay (in milliseconds) before making the window visible by restoring its opacity. */
+		private static final	int		WINDOW_VISIBLE_DELAY	= 50;
+
+	////////////////////////////////////////////////////////////////////
+	//  Constructors
+	////////////////////////////////////////////////////////////////////
+
+		private ControlDialog(
+			Window	owner,
+			Pane	contentPane)
+		{
+			// Call superclass constructor
+			super(StageStyle.TRANSPARENT);
+
+			// Set properties
+			initModality(Modality.APPLICATION_MODAL);
+			initOwner(owner);
+			setResizable(false);
+
+			// Make window invisible until it is displayed
+			setOpacity(0.0);
+
+			// Create icon for 'close dialog' label
+			Shape crossIcon = Shapes.cross01(CROSS_ICON_SIZE);
+			crossIcon.setStroke(getColour(ColourKey.CONTROL_DIALOG_CROSS_ICON));
+			crossIcon.getStyleClass().add(StyleClass.CROSS_ICON);
+
+			// Label: close dialog
+			Label closeLabel = new Label(null, Shapes.tile(crossIcon));
+			closeLabel.setMaxHeight(Double.MAX_VALUE);
+			closeLabel.setPadding(CLOSE_LABEL_PADDING);
+			closeLabel.setBackground(SceneUtils
+					.createColouredBackground(getColour(ColourKey.CONTROL_DIALOG_CLOSE_LABEL_BACKGROUND)));
+			closeLabel.setBorder(SceneUtils
+					.createSolidBorder(getColour(ColourKey.CONTROL_DIALOG_CLOSE_LABEL_BORDER), Side.LEFT));
+			closeLabel.getStyleClass().add(StyleClass.CLOSE_LABEL);
+			closeLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
+			{
+				if (event.getButton() == MouseButton.PRIMARY)
+					hide();
+			});
+
+			// Create main pane
+			HBox mainPane = new HBox(contentPane, closeLabel);
+			mainPane.setAlignment(Pos.CENTER);
+			mainPane.setBackground(SceneUtils
+					.createColouredBackground(getColour(ColourKey.CONTROL_DIALOG_MAIN_PANE_BACKGROUND)));
+			mainPane.setBorder(SceneUtils.createSolidBorder(getColour(ColourKey.CONTROL_DIALOG_MAIN_PANE_BORDER)));
+			mainPane.getStyleClass().add(StyleClass.CONTROL_DIALOG_ROOT);
+
+			// Create scene
+			Scene scene = new Scene(mainPane);
+
+			// Add style sheet to scene
+			StyleManager.INSTANCE.addStyleSheet(scene);
+
+			// Set scene on this window
+			setScene(scene);
+			sizeToScene();
+
+			// Close dialog if Escape is pressed
+			addEventFilter(KeyEvent.KEY_PRESSED, event ->
+			{
+				if (event.getCode() == KeyCode.ESCAPE)
+				{
+					hide();
+					event.consume();
+				}
+			});
+
+			// Update UI after window is displayed
+			addEventHandler(WindowEvent.WINDOW_SHOWN, event ->
+					ExecUtils.afterDelay(WINDOW_VISIBLE_DELAY, () -> setOpacity(1.0)));
+		}
+
+		//--------------------------------------------------------------
+
+	}
+
+	//==================================================================
+
 ////////////////////////////////////////////////////////////////////////
 //  Member classes : inner classes
 ////////////////////////////////////////////////////////////////////////
@@ -1667,66 +1952,252 @@ class DirectoryBrowserWindow
 	//==================================================================
 
 
-	// CLASS: CONTROL DIALOG
+	// CLASS: FILTER PANE
 
 
-	private class ControlDialog
-		extends Stage
+	private class FilterPane
+		extends VBox
 	{
 
 	////////////////////////////////////////////////////////////////////
 	//  Constants
 	////////////////////////////////////////////////////////////////////
 
-		/** The logical size of the <i>cross</i> icon. */
-		private static final	double	CROSS_ICON_SIZE	= 0.85 * TextUtils.textHeight();
+		/** The padding around this pane. */
+		private static final	Insets	PADDING	= new Insets(4.0);
 
-		/** The padding around the <i>close</i> lacbel. */
-		private static final	Insets	CLOSE_LABEL_PADDING	= new Insets(5.0);
+		/** The padding around a button. */
+		private static final	Insets	BUTTON_PADDING	= new Insets(2.0, 8.0, 2.0, 8.0);
 
-		/** The delay (in milliseconds) before making the window visible by restoring its opacity. */
-		private static final	int		WINDOW_VISIBLE_DELAY	= 50;
+		/** The padding around a control pane. */
+		private static final	Insets	CONTROL_PANE_PADDING	= new Insets(8.0, 10.0, 8.0, 10.0);
+
+		/** The separator between the <i>order</i> and <i>number of entries</i> check boxes. */
+		private static final	String	CHECK_BOX_SEPARATOR	= "  \u2022  ";
 
 		/** Miscellaneous strings. */
-		private static final	String	NUM_COLUMNS_STR	= "Number of columns";
-		private static final	String	FILTER_STR		= "Filter";
+		private static final	String	FILTER_STR			= "Filter";
+		private static final	String	FILE_KIND_STR		= "File kind";
+		private static final	String	ORDER_STR			= "Order";
+		private static final	String	NUM_ENTRIES_STR		= "Number of entries";
+		private static final	String	LINK_UNLINK_STR		= "Link/unlink";
+		private static final	String	ALL_STR				= "All";
+		private static final	String	NONE_STR			= "None";
 
 	////////////////////////////////////////////////////////////////////
 	//  Constructors
 	////////////////////////////////////////////////////////////////////
 
-		private ControlDialog()
+		private FilterPane()
 		{
-			// Call superclass constructor
-			super(StageStyle.TRANSPARENT);
-
 			// Set properties
-			initModality(Modality.APPLICATION_MODAL);
-			initOwner(DirectoryBrowserWindow.this);
-			setResizable(false);
+			setSpacing(4.0);
+			setAlignment(Pos.CENTER);
+			setPadding(PADDING);
 
-			// Make window invisible until it is displayed
-			setOpacity(0.0);
+			// Create factory function for pane containing 'all' and 'none' buttons
+			IFunction1<TilePane, IFunction0<Collection<CheckBox>>> buttonPaneFactory = checkBoxSource ->
+			{
+				// Create 'all' button
+				Button allButton = new Button(ALL_STR);
+				allButton.setMaxWidth(Double.MAX_VALUE);
+				allButton.setPadding(BUTTON_PADDING);
+				allButton.setOnAction(event -> checkBoxSource.invoke().stream().forEach(cb -> cb.setSelected(true)));
 
-			// Create control pane
-			GridPane controlPane = new GridPane();
-			controlPane.setHgap(CONTROL_H_GAP);
-			controlPane.setVgap(CONTROL_V_GAP);
-			controlPane.setAlignment(Pos.CENTER);
-			controlPane.setPadding(CONTROL_PANE_PADDING);
+				// Create 'none' button
+				Button noneButton = new Button(NONE_STR);
+				noneButton.setMaxWidth(Double.MAX_VALUE);
+				noneButton.setPadding(BUTTON_PADDING);
+				noneButton.setOnAction(event -> checkBoxSource.invoke().stream().forEach(cb -> cb.setSelected(false)));
+
+				// Create pane
+				TilePane pane = new TilePane(8.0, 6.0, allButton, noneButton);
+				pane.setPrefColumns(pane.getChildren().size());
+
+				// Return pane
+				return pane;
+			};
+
+			// Create pane: file kind
+			VBox fileKindPane = new VBox(8.0);
+			fileKindPane.setPadding(CONTROL_PANE_PADDING);
+
+			// Initialise map of file-kind check boxes
+			EnumMap<Filter.FileKind, CheckBox> fileKindCheckBoxes = new EnumMap<>(Filter.FileKind.class);
+
+			// Create pane for 'all' and 'none' buttons and add it to file-kind pane
+			fileKindPane.getChildren().add(buttonPaneFactory.invoke(() -> fileKindCheckBoxes.values()));
+
+			// Create file-kind check boxes
+			for (Filter.FileKind fileKind : Filter.FileKind.values())
+			{
+				CheckBox checkBox = new CheckBox(fileKind.text);
+				checkBox.setSelected(filter.fileKinds.contains(fileKind));
+				fileKindCheckBoxes.put(fileKind, checkBox);
+				fileKindPane.getChildren().add(checkBox);
+			}
+
+			// Create outer pane: file kind
+			LabelTitledPane fileKindOuterPane = new LabelTitledPane(FILE_KIND_STR, fileKindPane);
+
+			// Create pane: order
+			GridPane orderPane = new GridPane();
+			orderPane.setHgap(CONTROL_H_GAP);
+			orderPane.setVgap(4.0);
+			orderPane.setAlignment(Pos.CENTER);
+			orderPane.setPadding(CONTROL_PANE_PADDING);
 
 			// Initialise column constraints
 			ColumnConstraints column = new ColumnConstraints();
-			column.setMinWidth(Region.USE_PREF_SIZE);
-			column.setHalignment(HPos.RIGHT);
-			controlPane.getColumnConstraints().add(column);
+			column.setHalignment(HPos.LEFT);
+			orderPane.getColumnConstraints().add(column);
 
 			column = new ColumnConstraints();
 			column.setHalignment(HPos.LEFT);
-			controlPane.getColumnConstraints().add(column);
+			orderPane.getColumnConstraints().add(column);
 
 			// Initialise row index
 			int row = 0;
+
+			// Define record for order-related components
+			record OrderComponents(
+				CheckBox			orderCheckBox,
+				CheckBox			numEntriesCheckBox,
+				IntegerRangePane	rangePane)
+			{
+				void update()
+				{
+					numEntriesCheckBox.setDisable(!orderCheckBox.isSelected());
+					rangePane.setDisable(!orderCheckBox.isSelected() || !numEntriesCheckBox.isSelected());
+				}
+
+				Filter.OrderInfo orderInfo()
+				{
+					return new Filter.OrderInfo(orderCheckBox.isSelected(), rangePane.range(),
+												numEntriesCheckBox.isSelected(), rangePane.linkButton().isSelected());
+				}
+			}
+
+			// Initialise map of order-related components
+			EnumMap<Puzzle.Order, OrderComponents> orderComponents = new EnumMap<>(Puzzle.Order.class);
+
+			// Create pane for 'all' and 'none' buttons and add it to order pane
+			TilePane buttonPane = buttonPaneFactory.invoke(() ->
+					orderComponents.values().stream().map(oc -> oc.orderCheckBox).toList());
+			GridPane.setColumnSpan(buttonPane, 3);
+			GridPane.setMargin(buttonPane, new Insets(2.0, 0.0, 4.0, 0.0));
+			orderPane.addRow(row++, buttonPane);
+
+			// Create order-related components
+			for (Puzzle.Order order : Puzzle.Order.values())
+			{
+				// Get order information
+				Filter.OrderInfo orderInfo = filter.orderInfos.get(order);
+
+				// Create check box: order
+				CheckBox orderCheckBox = new CheckBox(order.key() + CHECK_BOX_SEPARATOR);
+				orderCheckBox.setSelected(orderInfo.orderEnabled);
+
+				// Create check box: number of entries
+				CheckBox numEntriesCheckBox = new CheckBox(NUM_ENTRIES_STR);
+				numEntriesCheckBox.setSelected(orderInfo.numEntriesEnabled);
+				GridPane.setMargin(numEntriesCheckBox, new Insets(0.0, 0.0, 0.0, -CONTROL_H_GAP));
+
+				// Create range pane: number of entries
+				IntegerRangePane rangePane = new IntegerRangePane(1, order.pow4() - 1, 3, true);
+				rangePane.linkButton().setTooltipText(LINK_UNLINK_STR);
+				rangePane.linkButton().setSelected(orderInfo.numEntriesLinked);
+				rangePane.setRange(orderInfo.numEntriesRange);
+				orderComponents.put(order, new OrderComponents(orderCheckBox, numEntriesCheckBox, rangePane));
+				orderPane.addRow(row++, orderCheckBox, numEntriesCheckBox, rangePane);
+			}
+
+			// Create outer pane: order
+			LabelTitledPane orderOuterPane = new LabelTitledPane(ORDER_STR, orderPane);
+
+			// Create procedure to update filter
+			IProcedure0 updateFilter = () ->
+			{
+				// Get file kinds
+				EnumSet<Filter.FileKind> fileKinds = EnumSet.noneOf(Filter.FileKind.class);
+				for (Filter.FileKind fileKind : fileKindCheckBoxes.keySet())
+				{
+					if (fileKindCheckBoxes.get(fileKind).isSelected())
+						fileKinds.add(fileKind);
+				}
+
+				// Get order information
+				EnumMap<Puzzle.Order, Filter.OrderInfo> orderInfos = new EnumMap<>(Puzzle.Order.class);
+				for (Puzzle.Order order : orderComponents.keySet())
+					orderInfos.put(order, orderComponents.get(order).orderInfo());
+
+				// Update filter
+				filter = new Filter(fileKinds, orderInfos);
+
+				// Update files
+				updateFiles();
+			};
+
+			// Update filter when 'selected' state of a file-kind check box changes
+			for (Filter.FileKind fileKind : fileKindCheckBoxes.keySet())
+				fileKindCheckBoxes.get(fileKind).selectedProperty().addListener(observable -> updateFilter.invoke());
+
+			// Update order-related components and filter when state of an order-related component changes
+			for (Puzzle.Order order : orderComponents.keySet())
+			{
+				OrderComponents components = orderComponents.get(order);
+				components.orderCheckBox.selectedProperty().addListener(observable ->
+				{
+					components.update();
+					updateFilter.invoke();
+				});
+				components.numEntriesCheckBox.selectedProperty().addListener(observable ->
+				{
+					components.update();
+					updateFilter.invoke();
+				});
+				components.rangePane.rangeProperty().addListener(observable -> updateFilter.invoke());
+				components.update();
+			}
+
+			// Add children to this pane
+			getChildren().addAll(fileKindOuterPane, orderOuterPane);
+		}
+
+		//--------------------------------------------------------------
+
+	}
+
+	//==================================================================
+
+
+	// CLASS: 'NUMBER OF COLUMNS' PANE
+
+
+	private class NumColumnsPane
+		extends HBox
+	{
+
+	////////////////////////////////////////////////////////////////////
+	//  Constants
+	////////////////////////////////////////////////////////////////////
+
+		/** The padding around this pane. */
+		private static final	Insets	PADDING	= new Insets(8.0, 12.0, 8.0, 12.0);
+
+		/** Miscellaneous strings. */
+		private static final	String	NUM_COLUMNS_STR	= "Number of columns";
+
+	////////////////////////////////////////////////////////////////////
+	//  Constructors
+	////////////////////////////////////////////////////////////////////
+
+		private NumColumnsPane()
+		{
+			// Set properties
+			setSpacing(CONTROL_H_GAP);
+			setAlignment(Pos.CENTER);
+			setPadding(PADDING);
 
 			// Spinner: number of columns
 			Spinner<Integer> numColumnsSpinner =
@@ -1734,69 +2205,7 @@ class DirectoryBrowserWindow
 												  NumberUtils.getNumDecDigitsInt(MAX_NUM_COLUMNS));
 			numColumnsSpinner.valueProperty().addListener((observable, oldNumColumns, numColumns) ->
 					multiPuzzlePane.numColumns(numColumns));
-			controlPane.addRow(row++, new Label(NUM_COLUMNS_STR), numColumnsSpinner);
-
-			// Spinner: filter
-			CollectionSpinner<Filter> filterSpinner =
-					CollectionSpinner.leftRightH(HPos.CENTER, true, Filter.class, filter, null, null);
-			filterSpinner.itemProperty().addListener((observable, oldFilter, newFilter) ->
-			{
-				filter = newFilter;
-				readFiles();
-			});
-			controlPane.addRow(row++, new Label(FILTER_STR), filterSpinner);
-
-			// Create icon for 'close dialog' label
-			Shape crossIcon = Shapes.cross01(CROSS_ICON_SIZE);
-			crossIcon.setStroke(getColour(ColourKey.CONTROL_DIALOG_CROSS_ICON));
-			crossIcon.getStyleClass().add(StyleClass.CROSS_ICON);
-
-			// Label: close dialog
-			Label closeLabel = new Label(null, Shapes.tile(crossIcon));
-			closeLabel.setMaxHeight(Double.MAX_VALUE);
-			closeLabel.setPadding(CLOSE_LABEL_PADDING);
-			closeLabel.setBackground(SceneUtils
-					.createColouredBackground(getColour(ColourKey.CONTROL_DIALOG_CLOSE_LABEL_BACKGROUND)));
-			closeLabel.setBorder(SceneUtils
-					.createSolidBorder(getColour(ColourKey.CONTROL_DIALOG_CLOSE_LABEL_BORDER), Side.LEFT));
-			closeLabel.getStyleClass().add(StyleClass.CLOSE_LABEL);
-			closeLabel.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
-			{
-				if (event.getButton() == MouseButton.PRIMARY)
-					hide();
-			});
-
-			// Create main pane
-			HBox mainPane = new HBox(controlPane, closeLabel);
-			mainPane.setAlignment(Pos.CENTER);
-			mainPane.setBackground(SceneUtils
-					.createColouredBackground(getColour(ColourKey.CONTROL_DIALOG_MAIN_PANE_BACKGROUND)));
-			mainPane.setBorder(SceneUtils.createSolidBorder(getColour(ColourKey.CONTROL_DIALOG_MAIN_PANE_BORDER)));
-			mainPane.getStyleClass().add(StyleClass.CONTROL_DIALOG_ROOT);
-
-			// Create scene
-			Scene scene = new Scene(mainPane);
-
-			// Add style sheet to scene
-			StyleManager.INSTANCE.addStyleSheet(scene);
-
-			// Set scene on this window
-			setScene(scene);
-			sizeToScene();
-
-			// Close dialog if Escape is pressed
-			addEventFilter(KeyEvent.KEY_PRESSED, event ->
-			{
-				if (event.getCode() == KeyCode.ESCAPE)
-				{
-					hide();
-					event.consume();
-				}
-			});
-
-			// Update UI after window is displayed
-			addEventHandler(WindowEvent.WINDOW_SHOWN, event ->
-					ExecUtils.afterDelay(WINDOW_VISIBLE_DELAY, () -> setOpacity(1.0)));
+			getChildren().addAll(Labels.hNoShrink(NUM_COLUMNS_STR), numColumnsSpinner);
 		}
 
 		//--------------------------------------------------------------

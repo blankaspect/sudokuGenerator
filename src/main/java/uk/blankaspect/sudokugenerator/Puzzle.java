@@ -369,7 +369,7 @@ class Puzzle
 		try
 		{
 			Puzzle puzzle = parseText(text);
-			return new FileInfo(file, puzzle, ((puzzle.numEntries() > 1) && (puzzle.valueCardinality() > 1)));
+			return new FileInfo(file, puzzle, ((puzzle.numEntries() > 1) && (puzzle.valueCardinality() == 1)));
 		}
 		catch (BaseException e)
 		{
@@ -1797,6 +1797,13 @@ class Puzzle
 		public int pow3()
 		{
 			return value * value * value;
+		}
+
+		//--------------------------------------------------------------
+
+		public int pow4()
+		{
+			return value * value * value * value;
 		}
 
 		//--------------------------------------------------------------
