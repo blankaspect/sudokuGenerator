@@ -1413,6 +1413,7 @@ class Puzzle
 		int				numEntries,
 		boolean			randomiseVerification,
 		int				numThreads,
+		int				fillTimeout,
 		boolean			verifyIncrementally,
 		AtomicLong		attemptsCount,
 		ICancellable	taskStatus)
@@ -1431,7 +1432,8 @@ class Puzzle
 
 		// Generate entries of puzzle
 		new SubtractiveGenerator().generate(numEntries, cellIndices, new PrngXoshiro256ss(seed), randomiseVerification,
-											actualNumThreads, verifyIncrementally, attemptsCount, taskStatus, entries ->
+											actualNumThreads, fillTimeout, verifyIncrementally, attemptsCount,
+											taskStatus, entries ->
 		{
 			// Update values with generated entries
 			setValues(entries);
@@ -2139,6 +2141,28 @@ class Puzzle
 
 	//==================================================================
 
+
+	// CLASS: TIMEOUT EXCEPTION
+
+
+	private static class TimeoutException
+		extends RuntimeException
+	{
+
+	////////////////////////////////////////////////////////////////////
+	//  Constructors
+	////////////////////////////////////////////////////////////////////
+
+		private TimeoutException()
+		{
+		}
+
+		//--------------------------------------------------------------
+
+	}
+
+	//==================================================================
+
 ////////////////////////////////////////////////////////////////////////
 //  Member classes : inner classes
 ////////////////////////////////////////////////////////////////////////
@@ -2160,6 +2184,7 @@ class Puzzle
 		private	AtomicLong		solutionsCount;
 		private	ICancellable	taskStatus;
 		private	List<Puzzle>	solutions;
+		private	long			endTime;
 
 	////////////////////////////////////////////////////////////////////
 	//  Constructors
@@ -2186,6 +2211,15 @@ class Puzzle
 	////////////////////////////////////////////////////////////////////
 	//  Instance methods
 	////////////////////////////////////////////////////////////////////
+
+		private void setTimeout(
+			int	timeout
+		)
+		{
+			endTime = (timeout > 0) ? System.currentTimeMillis() + timeout : 0;
+		}
+
+		//--------------------------------------------------------------
 
 		private List<Puzzle> solve()
 			throws TaskCancelledException
@@ -2241,6 +2275,10 @@ class Puzzle
 			// Test whether task has been cancelled
 			if ((level >= cancellationLevel) && taskStatus.isCancelled())
 				throw new TaskCancelledException();
+
+			// Test for timeout
+			if ((endTime > 0) && (System.currentTimeMillis() > endTime))
+				throw new TimeoutException();
 
 			// Initialise variables
 			int minCount = Integer.MAX_VALUE;
@@ -2479,11 +2517,19 @@ class Puzzle
 			int minCount = Integer.MAX_VALUE;
 			for (int i = index; i < cellIndices.length; i++)
 			{
+				// Find available values for cell
 				int cIndex = cellIndices[i];
 				int row = cIndex / numColumns;
 				int column = cIndex % numColumns;
 				int block = rowColumnToBlock(row, column);
 				int avail = availableValues.rows[row] & availableValues.columns[column] & availableValues.blocks[block];
+
+				// If the target cell with the fewest available values has no available values, the current search path
+				// does not lead to a solution
+				if (avail == 0)
+					return false;
+
+				// Update variables that are associated with the fewest available values
 				int count = Integer.bitCount(avail);
 				if (count < minCount)
 				{
@@ -2493,11 +2539,6 @@ class Puzzle
 					available = avail;
 				}
 			}
-
-			// If the target cell with the fewest available values has no available values, the current search path does
-			// not lead to a solution
-			if (available == 0)
-				return false;
 
 			// If necessary, swap the index of the next cell with the index of the cell with the fewest available values
 			if (index != minCountIndex)
@@ -2858,8 +2899,8 @@ class Puzzle
 
 				// Create array of randomly generated cell indices
 				int[] indices = new int[values.length];
-				for (int j = 0; j < indices.length; j++)
-					indices[j] = j;
+				for (int i = 0; i < indices.length; i++)
+					indices[i] = i;
 				permuteIntArray(indices, prng);
 				int[] cellIndices = Arrays.copyOfRange(indices, 0, numEntries);
 
@@ -3081,6 +3122,7 @@ class Puzzle
 		private	int				numEntries;
 		private	BitSet			cellIndices;
 		private	boolean			randomiseVerification;
+		private	int				fillTimeout;
 		private	boolean			verifyIncrementally;
 		private	ICancellable	taskStatus;
 		private	AtomicLong		attemptsCount;
@@ -3105,6 +3147,7 @@ class Puzzle
 			IPrng						prng,
 			boolean						randomiseVerification,
 			int							numThreads,
+			int							fillTimeout,
 			boolean						verifyIncrementally,
 			AtomicLong					attemptsCount,
 			ICancellable				taskStatus,
@@ -3115,6 +3158,7 @@ class Puzzle
 			this.numEntries = numEntries;
 			this.cellIndices = cellIndices;
 			this.randomiseVerification = randomiseVerification;
+			this.fillTimeout = fillTimeout;
 			this.verifyIncrementally = verifyIncrementally;
 			this.attemptsCount = attemptsCount;
 			this.taskStatus = taskStatus;
@@ -3188,9 +3232,17 @@ class Puzzle
 				if (attemptsCount.get() >= MAX_NUM_GENERATION_ATTEMPTS)
 					throw new BaseException(ErrorMsg.MAX_NUM_GENERATION_ATTEMPTS_REACHED);
 
-				// Find a random solution for an empty puzzle
+				// Fill all cells by solving empty puzzle
 				puzzle.clear();
-				solutions = solver1.solve();
+				try
+				{
+					solver1.setTimeout(fillTimeout);
+					solutions = solver1.solve();
+				}
+				catch (TimeoutException e)
+				{
+					continue;
+				}
 
 				// Get entries of solution
 				List<Entry> entries = solutions.get(0).entries();
@@ -3207,8 +3259,8 @@ class Puzzle
 					// Create function to test whether a cell has only a single available value
 					IFunction1<Boolean, Integer> isSingleAvailableValue = cellIndex ->
 					{
-						int row = cellIndex / puzzle.numColumns;
-						int column = cellIndex % puzzle.numColumns;
+						int row = cellIndex / numColumns;
+						int column = cellIndex % numColumns;
 						int block = rowColumnToBlock(row, column);
 						int available = puzzle.availableValues.rows[row] & puzzle.availableValues.columns[column]
 											& puzzle.availableValues.blocks[block];
@@ -3242,14 +3294,14 @@ class Puzzle
 					// ... otherwise, remove entries for cells other than the target cells
 					else
 					{
-						for (int j = entries.size() - 1; j >= 0; j--)
+						for (int i = entries.size() - 1; i >= 0; i--)
 						{
 							// If cell is a target cell, leave it
-							if (cellIndices.get(j))
+							if (cellIndices.get(i))
 								continue;
 
 							// Remove entry from list and clear cell
-							Entry entry = entries.remove(j);
+							Entry entry = entries.remove(i);
 							puzzle.setValue(entry.index, 0);
 
 							// If cell has only a single available value, skip verification on this iteration ...
@@ -3285,10 +3337,10 @@ class Puzzle
 					// ... otherwise, remove entries for cells other than the ones specified
 					else
 					{
-						for (int j = entries.size() - 1; j >= 0; j--)
+						for (int i = entries.size() - 1; i >= 0; i--)
 						{
-							if (!cellIndices.get(j))
-								entries.remove(j);
+							if (!cellIndices.get(i))
+								entries.remove(i);
 						}
 					}
 

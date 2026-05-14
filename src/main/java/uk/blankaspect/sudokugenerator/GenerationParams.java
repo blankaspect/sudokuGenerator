@@ -48,6 +48,7 @@ abstract class GenerationParams
 	/** Keys of properties. */
 	private interface PropertyKey
 	{
+		String	MAX_FILL_TIME			= "maxFillTime";
 		String	NUM_ENTRIES				= "numEntries";
 		String	NUM_THREADS				= "numThreads";
 		String	RANDOMISE_VERIFICATION	= "randomiseVerification";
@@ -292,12 +293,15 @@ abstract class GenerationParams
 	//  Constants
 	////////////////////////////////////////////////////////////////////
 
+		private static final	int		DEFAULT_MAX_FILL_TIME	= 1000;
+
 		private static final	boolean	DEFAULT_VERIFY_INCREMENTALLY	= true;
 
 	////////////////////////////////////////////////////////////////////
 	//  Instance variables
 	////////////////////////////////////////////////////////////////////
 
+		private	int		maxFillTime;
 		private	boolean	verifyIncrementally;
 
 	////////////////////////////////////////////////////////////////////
@@ -307,6 +311,7 @@ abstract class GenerationParams
 		public Subtractive()
 		{
 			// Initialise instance variables
+			maxFillTime = DEFAULT_MAX_FILL_TIME;
 			verifyIncrementally = DEFAULT_VERIFY_INCREMENTALLY;
 		}
 
@@ -317,12 +322,14 @@ abstract class GenerationParams
 			Long						seed,
 			boolean						randomiseVerification,
 			int							numThreads,
+			int							maxFillTime,
 			boolean						verifyIncrementally)
 		{
 			// Call superclass constructor
 			super(numEntries, seed, randomiseVerification, numThreads);
 
 			// Initialise remaining instance variables
+			this.maxFillTime = maxFillTime;
 			this.verifyIncrementally = verifyIncrementally;
 		}
 
@@ -337,6 +344,9 @@ abstract class GenerationParams
 		{
 			// Call superclass method
 			MapNode rootNode = super.encode();
+
+			// Encode maximum fill time
+			rootNode.addInt(PropertyKey.MAX_FILL_TIME, maxFillTime);
 
 			// Encode 'verify incrementally' flag
 			rootNode.addBoolean(PropertyKey.VERIFY_INCREMENTALLY, verifyIncrementally);
@@ -358,6 +368,9 @@ abstract class GenerationParams
 			// Call superclass method
 			super.decode(rootNode);
 
+			// Decode maximum fill time
+			maxFillTime = rootNode.getInt(PropertyKey.MAX_FILL_TIME, DEFAULT_MAX_FILL_TIME);
+
 			// Decode 'verify incrementally' flag
 			verifyIncrementally = rootNode.getBoolean(PropertyKey.VERIFY_INCREMENTALLY, DEFAULT_VERIFY_INCREMENTALLY);
 		}
@@ -367,6 +380,13 @@ abstract class GenerationParams
 	////////////////////////////////////////////////////////////////////
 	//  Instance methods
 	////////////////////////////////////////////////////////////////////
+
+		public int maxFillTime()
+		{
+			return maxFillTime;
+		}
+
+		//--------------------------------------------------------------
 
 		public boolean verifyIncrementally()
 		{

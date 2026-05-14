@@ -95,6 +95,7 @@ import uk.blankaspect.ui.jfx.label.Labels;
 import uk.blankaspect.ui.jfx.scene.SceneUtils;
 
 import uk.blankaspect.ui.jfx.spinner.CollectionSpinner;
+import uk.blankaspect.ui.jfx.spinner.IntRangeSpinner;
 import uk.blankaspect.ui.jfx.spinner.SpinnerFactory;
 
 import uk.blankaspect.ui.jfx.style.ColourProperty;
@@ -174,14 +175,8 @@ class GenerationDialog
 	private static final	String	ELLIPSIS_STR				= "...";
 	private static final	String	GENERATE_PUZZLE_STR			= "Generate puzzle";
 	private static final	String	SEED_STR					= "Seed";
-	private static final	String	RANDOM_STR					= "Random";
 	private static final	String	GENERATE_RANDOM_SEED_STR	= "Generate a random seed";
-	private static final	String	RANDOMISE_VERIFICATION_STR	= "Randomise verification";
-	private static final	String	NUM_ENTRIES_STR				= "Number of entries";
 	private static final	String	MODE_STR					= "Mode";
-	private static final	String	NUM_THREADS_STR				= "Number of threads";
-	private static final	String	ZERO_THREADS_STR			= "max(1, number of processors \u2212 1) = ";
-	private static final	String	VERIFY_INCREMENTALLY_STR	= "Verify incrementally";
 	private static final	String	NUM_ATTEMPTS_STR			= "Number of attempts";
 	private static final	String	GENERATE_STR				= "Generate";
 	private static final	String	STOP_STR					= "Stop";
@@ -644,7 +639,8 @@ class GenerationDialog
 						GenerationParams.Subtractive p = (GenerationParams.Subtractive)params;
 						int numEntries = puzzle.hasEntries() ? 0 : p.numEntries(puzzle.puzzleOrder());
 						puzzle.generateSubtractive(p.seed(), numEntries, p.randomiseVerification(), p.numThreads(),
-												   p.verifyIncrementally(), attemptsCount, this::isCancelled);
+												   p.maxFillTime(), p.verifyIncrementally(), attemptsCount,
+												   this::isCancelled);
 						break;
 					}
 				}
@@ -942,10 +938,25 @@ class GenerationDialog
 	{
 
 	////////////////////////////////////////////////////////////////////
+	//  Constants
+	////////////////////////////////////////////////////////////////////
+
+		private static final	int[]	MAX_FILL_TIMES	= { 0, -2, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20 };
+
+		private static final	int		INITIAL_MAX_FILL_TIME_INDEX	= 3;
+
+		/** Miscellaneous strings. */
+		private static final	String	MAX_FILL_TIME_STR			= "Maximum fill time";
+		private static final	String	NONE_STR					= "None";
+		private static final	String	SECONDS_STR					= "seconds";
+		private static final	String	VERIFY_INCREMENTALLY_STR	= "Verify incrementally";
+
+	////////////////////////////////////////////////////////////////////
 	//  Instance variables
 	////////////////////////////////////////////////////////////////////
 
 		private	GenerationParams.Subtractive	params;
+		private	IntRangeSpinner					maxFillTimeSpinner;
 		private	CheckBox						verifyIncrementallyCheckBox;
 		private	ModePagePane					pane;
 
@@ -966,11 +977,61 @@ class GenerationDialog
 			// Initialise row index
 			int row = pane.getRowCount();
 
+			// Spinner: maximum fill time
+			maxFillTimeSpinner = IntRangeSpinner.leftRightH(HPos.CENTER, true, 0, MAX_FILL_TIMES.length - 1,
+															millisecondsToIndex(params.maxFillTime()), null, index ->
+			{
+				int value = MAX_FILL_TIMES[index];
+				return (value < 0)
+							? Double.toString(1.0 / (double)-value)
+							: (value == 0)
+									? NONE_STR
+									: Integer.toString(value);
+			});
+
+			// Label: seconds
+			Label secondsLabel = Labels.hNoShrink(SECONDS_STR);
+			secondsLabel.visibleProperty().bind(maxFillTimeSpinner.valueProperty().isNotEqualTo(0));
+
+			// Pane: maximum fill time
+			HBox maxFillTimePane = new HBox(6.0, maxFillTimeSpinner, secondsLabel);
+			maxFillTimePane.setAlignment(Pos.CENTER_LEFT);
+			pane.addRow(row++, new Label(MAX_FILL_TIME_STR), maxFillTimePane);
+
 			// Check box: verify incrementally
 			verifyIncrementallyCheckBox = new CheckBox(VERIFY_INCREMENTALLY_STR);
 			verifyIncrementallyCheckBox.setSelected(params.verifyIncrementally());
 			GridPane.setMargin(verifyIncrementallyCheckBox, CHECK_BOX_MARGINS);
 			pane.add(verifyIncrementallyCheckBox, 1, row++);
+		}
+
+		//--------------------------------------------------------------
+
+	////////////////////////////////////////////////////////////////////
+	//  Class methods
+	////////////////////////////////////////////////////////////////////
+
+		private static int indexToMillseconds(
+			int	index)
+		{
+			int value = MAX_FILL_TIMES[index];
+			return (value < 0) ? (int)Math.round(1000.0 / (double)-value) : value * 1000;
+		}
+
+		//--------------------------------------------------------------
+
+		private static int millisecondsToIndex(
+			int	milliseconds)
+		{
+			int value = milliseconds / 1000;
+			if ((value == 0) && (milliseconds > 0))
+				value = -1000 / milliseconds;
+			for (int i = 0; i < MAX_FILL_TIMES.length; i++)
+			{
+				if (MAX_FILL_TIMES[i] == value)
+					return i;
+			}
+			return INITIAL_MAX_FILL_TIME_INDEX;
 		}
 
 		//--------------------------------------------------------------
@@ -988,7 +1049,8 @@ class GenerationDialog
 
 			return new GenerationParams.Subtractive(
 					numEntries, pane.seed(), pane.randomiseVerificationCheckBox.isSelected(),
-					pane.numThreadsSpinner.getValue(), verifyIncrementallyCheckBox.isSelected());
+					pane.numThreadsSpinner.getValue(), indexToMillseconds(maxFillTimeSpinner.value()),
+					verifyIncrementallyCheckBox.isSelected());
 		}
 
 		//--------------------------------------------------------------
@@ -1045,6 +1107,13 @@ class GenerationDialog
 	////////////////////////////////////////////////////////////////////
 
 		private static final	Insets	RANDOM_SEED_BUTTON_PADDING	= new Insets(3.0, 6.0, 3.0, 6.0);
+
+		/** Miscellaneous strings. */
+		private static final	String	NUM_ENTRIES_STR				= "Number of entries";
+		private static final	String	RANDOM_STR					= "Random";
+		private static final	String	RANDOMISE_VERIFICATION_STR	= "Randomise verification";
+		private static final	String	NUM_THREADS_STR				= "Number of threads";
+		private static final	String	ZERO_THREADS_STR			= " max(1, number of processors \u2212 1) = ";
 
 	////////////////////////////////////////////////////////////////////
 	//  Instance variables
@@ -1137,13 +1206,13 @@ class GenerationDialog
 															  NUM_THREADS_NUM_DIGITS);
 
 			// Label: zero threads
-			Label zeroThreadsLabel = new Label(ZERO_THREADS_STR + Puzzle.actualNumThreads(0));
+			Label zeroThreadsLabel = Labels.hNoShrink(ZERO_THREADS_STR + Puzzle.actualNumThreads(0));
 			zeroThreadsLabel.setTextFill(getColour(ColourKey.SECONDARY_LABEL_TEXT));
 			zeroThreadsLabel.getStyleClass().add(StyleClass.SECONDARY_LABEL);
 			zeroThreadsLabel.visibleProperty().bind(numThreadsSpinner.valueProperty().isEqualTo(0));
 
 			// Pane: number of threads
-			HBox numThreadsPane = new HBox(12.0, numThreadsSpinner, zeroThreadsLabel);
+			HBox numThreadsPane = new HBox(6.0, numThreadsSpinner, zeroThreadsLabel);
 			numThreadsPane.setAlignment(Pos.CENTER_LEFT);
 			addRow(row++, numThreadsLabel, numThreadsPane);
 		}

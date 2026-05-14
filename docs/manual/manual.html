@@ -687,13 +687,11 @@
         The directory-browser window is a modeless window that can be displayed from the main
         window of SudokuGenerator with the <a class="command" href="#section5-1-12">File &gt;
         Browse directory</a> command (F12).  The window contains a grid view of representations
-        of the SudokuGenerator puzzle files and/or template files in a chosen directory after a
-        configurable filter has been applied.
-      </p>
-      <p class="wrap">
-        The browser window provides an overview of a collection of puzzle files.  Multiple files
-        may be selected in the browser window and opened in the main window or exported to an
-        HTML file.  Files cannot be modified in the browser window.
+        of SudokuGenerator puzzle files and/or template files in a chosen directory.  A
+        configurable filter may be applied to restrict the files that are shown in the window.
+        Multiple files may be selected in the browser window and opened in the main window of
+        the application or exported to an HTML file.  Files cannot be modified in the browser
+        window.
       </p>
       <p class="wrap">
         At the top of the browser window is a bar that contains two groups of buttons.  The
@@ -1105,9 +1103,10 @@
           generated puzzle; the cells that will contain entries are chosen randomly.
         </li>
         <li class="wrap">
-          If the current puzzle is not empty, it is treated as a <i>template</i> whose entries
-          indicate the cells that will contain entries in the generated puzzle.  (The symbols in
-          the cells of the template are ignored.)
+          If the current puzzle is not empty, it is treated as a <a class="definition"
+          href="#def-template">template</a> whose entries indicate the cells that will contain
+          entries in the generated puzzle.  (The symbols in the cells of the template are
+          ignored.)
         </li>
       </ol>
       <p class="noBottomMargin wrap">
@@ -1135,22 +1134,22 @@
           removed.  If the puzzle is found to be <a class="definition"
           href="#def-wellPosedPuzzle">well-posed</a> after entries have been removed from all
           cells except for the target cells, generation has succeeded; otherwise, the
-          generate-and-reduce procedure is repeated until it succeeds in finding a set of
-          entries for the target cells that has a unique solution.  Even if such a set of
-          entries exists, it is not certain that this procedure will find it.
+          fill-and-remove procedure is repeated until it yields a set of entries for the target
+          cells that has a unique solution.  Even if such a set of entries exists, it is not
+          certain that this procedure will find it.
         </li>
       </ul>
       <p class="wrap">
         The command dispays a modal dialog in which you can choose the parameters that control
-        the generation of a puzzle using the following controls:
+        the generation of a puzzle.  At the bottom left corner of the dialog is the <span
+        class="component">Mode</span> spinner, which switches between the two modes of puzzle
+        generation.  Each mode has its own set of parameters whose values are chosen with the
+        controls in the upper section of the dialog.
+      </p>
+      <p class="wrap">
+        The following controls are common to both generation modes:
       </p>
       <ul class="list">
-        <li class="spaced wrap">
-          At the bottom left corner of the dialog is the <span class="component">Mode</span>
-          spinner, which switches between the two modes of puzzle generation.  Each mode has its
-          own set of parameters whose values are chosen with the controls in the upper section
-          of the dialog.
-        </li>
         <li class="spaced wrap">
           The <span class="component">Number of entries</span> spinner controls the number of
           entries in the generated puzzle.  The spinner is disabled if a template was supplied;
@@ -1182,13 +1181,30 @@
           <code>Runtime.availableProcessors()</code> method.  This number is displayed next to
           the spinner when the value 0 is selected.
         </li>
+      </ul>
+      <p class="wrap">
+        The following controls are specific to subtractive mode:
+      </p>
+      <ul class="list">
         <li class="spaced wrap">
-          The <span class="component">Verify incrementally</span> check box is displayed only in
-          subtractive mode.  It controls whether a generated puzzle is verified (that is, solved
-          and checked for a unique solution) either after each unwanted entry is removed or only
-          once, after all unwanted entries have been removed.  It is recommended that you select
-          this option because the benefit of rejecting a candidate puzzle at an early stage is
-          likely to outweigh the cost of repeatedly solving a diminishing puzzle.
+          The <span class="component">Maximum fill time</span> spinner controls the maximum time
+          (in seconds) that is allowed for the first step of an attempt to generate a puzzle in
+          subtractive mode in which a grid is filled with random entries by finding a solution
+          to an empty puzzle.  The mean and variance of the time taken to perform this step
+          increase with the <a class="definition" href="#def-order">order</a> of a puzzle.  The
+          time taken can be several seconds for some order-4 puzzles and several tens of seconds
+          for some order-5 puzzles.  If a maximum time is set, the search for a solution is
+          aborted when the time taken exceeds the limit, and another search for a solution is
+          begun.  If the value of the spinner is <i>None</i>, there is no limit on the time
+          allowed for finding a solution to an empty puzzle.
+        </li>
+        <li class="spaced wrap">
+          The <span class="component">Verify incrementally</span> check box controls whether a
+          generated puzzle is verified (that is, solved and checked for a unique solution)
+          either after each unwanted entry is removed or only once, after all unwanted entries
+          have been removed.  It is recommended that you select this option because the benefit
+          of rejecting a candidate puzzle at an early stage is likely to outweigh the cost of
+          repeatedly solving a diminishing puzzle.
         </li>
       </ul>
       <p class="wrap">
@@ -1201,8 +1217,8 @@
         it was deemed too costly.  The chosen approach means that the independent threads are in
         a race to generate a puzzle; if the number of threads is greater than 1, the order in
         which they finish is indeterminate.  In other words, it is possible for two iterations
-        of the race with the same set of parameters (seed of the PRNG, number of threads, etc)
-        to be &apos;won&apos; by different threads, yielding different puzzles.
+        of the race with the same set of parameters (the seed of the PRNG, the number of
+        threads, etc) to be won by different threads, yielding different puzzles.
       </p>
       <p class="noBottomMargin wrap">
         Puzzle generation is started with the <span class="component">Generate</span> button
@@ -1363,9 +1379,9 @@
       </ul>
       <p class="wrap">
         Note that the time taken to execute the <span class="command">Check</span> command can
-        vary widely depending on the puzzle.  It will usually be a fraction of a second for an
-        <a class="definition" href="#def-order">order-3</a> puzzle, but it can be several
-        minutes for a particularly tricky order-5 puzzle.
+        vary widely depending on the puzzle.  It will usually be less than a second for an <a
+        class="definition" href="#def-order">order-3</a> puzzle, but it can be several minutes
+        for a particularly tricky order-5 puzzle.
       </p>
 
       <h4 id="section5-4-10">5.4.10&nbsp; <span class="command">Puzzle &gt; Transform</span></h4>
@@ -2433,7 +2449,7 @@ D..  ..C  ...
     <div id="lastModified">
       <div>
         <div>
-          Last modified: 2026-05-12
+          Last modified: 2026-05-14
         </div>
         <div class="image">
           <a class="hideHover" href="http://validator.w3.org/check?uri=referer">
