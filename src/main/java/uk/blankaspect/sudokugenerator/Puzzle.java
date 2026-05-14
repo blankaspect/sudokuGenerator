@@ -2213,8 +2213,7 @@ class Puzzle
 	////////////////////////////////////////////////////////////////////
 
 		private void setTimeout(
-			int	timeout
-		)
+			int	timeout)
 		{
 			endTime = (timeout > 0) ? System.currentTimeMillis() + timeout : 0;
 		}
