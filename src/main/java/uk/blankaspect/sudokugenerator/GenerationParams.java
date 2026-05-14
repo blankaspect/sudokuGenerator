@@ -293,7 +293,13 @@ abstract class GenerationParams
 	//  Constants
 	////////////////////////////////////////////////////////////////////
 
-		private static final	int		DEFAULT_MAX_FILL_TIME	= 1000;
+		private static final	Map<Puzzle.Order, Integer>	DEFAULT_MAX_FILL_TIMES	= new EnumMap<>(Map.of
+		(
+			Puzzle.Order._2,    0,
+			Puzzle.Order._3,    0,
+			Puzzle.Order._4,  500,
+			Puzzle.Order._5, 1000
+		));
 
 		private static final	boolean	DEFAULT_VERIFY_INCREMENTALLY	= true;
 
@@ -301,8 +307,8 @@ abstract class GenerationParams
 	//  Instance variables
 	////////////////////////////////////////////////////////////////////
 
-		private	int		maxFillTime;
-		private	boolean	verifyIncrementally;
+		private	Map<Puzzle.Order, Integer>	maxFillTimes;
+		private	boolean						verifyIncrementally;
 
 	////////////////////////////////////////////////////////////////////
 	//  Constructors
@@ -311,7 +317,7 @@ abstract class GenerationParams
 		public Subtractive()
 		{
 			// Initialise instance variables
-			maxFillTime = DEFAULT_MAX_FILL_TIME;
+			maxFillTimes = new EnumMap<>(DEFAULT_MAX_FILL_TIMES);
 			verifyIncrementally = DEFAULT_VERIFY_INCREMENTALLY;
 		}
 
@@ -322,14 +328,14 @@ abstract class GenerationParams
 			Long						seed,
 			boolean						randomiseVerification,
 			int							numThreads,
-			int							maxFillTime,
+			Map<Puzzle.Order, Integer>	maxFillTimes,
 			boolean						verifyIncrementally)
 		{
 			// Call superclass constructor
 			super(numEntries, seed, randomiseVerification, numThreads);
 
 			// Initialise remaining instance variables
-			this.maxFillTime = maxFillTime;
+			this.maxFillTimes = new EnumMap<>(maxFillTimes);
 			this.verifyIncrementally = verifyIncrementally;
 		}
 
@@ -345,8 +351,10 @@ abstract class GenerationParams
 			// Call superclass method
 			MapNode rootNode = super.encode();
 
-			// Encode maximum fill time
-			rootNode.addInt(PropertyKey.MAX_FILL_TIME, maxFillTime);
+			// Encode maximum fill times
+			MapNode maxFillTimeNode = rootNode.addMap(PropertyKey.MAX_FILL_TIME);
+			for (Puzzle.Order order : maxFillTimes.keySet())
+				maxFillTimeNode.addInt(order.key(), maxFillTimes.get(order));
 
 			// Encode 'verify incrementally' flag
 			rootNode.addBoolean(PropertyKey.VERIFY_INCREMENTALLY, verifyIncrementally);
@@ -368,8 +376,18 @@ abstract class GenerationParams
 			// Call superclass method
 			super.decode(rootNode);
 
-			// Decode maximum fill time
-			maxFillTime = rootNode.getInt(PropertyKey.MAX_FILL_TIME, DEFAULT_MAX_FILL_TIME);
+			// Decode maximum fill times
+			String key = PropertyKey.MAX_FILL_TIME;
+			if (rootNode.hasMap(key))
+			{
+				MapNode maxFillTimeNode = rootNode.getMapNode(key);
+				for (Puzzle.Order order : Puzzle.Order.values())
+				{
+					key = order.key();
+					if (maxFillTimeNode.hasInt(key))
+						maxFillTimes.put(order, maxFillTimeNode.getInt(key));
+				}
+			}
 
 			// Decode 'verify incrementally' flag
 			verifyIncrementally = rootNode.getBoolean(PropertyKey.VERIFY_INCREMENTALLY, DEFAULT_VERIFY_INCREMENTALLY);
@@ -381,9 +399,17 @@ abstract class GenerationParams
 	//  Instance methods
 	////////////////////////////////////////////////////////////////////
 
-		public int maxFillTime()
+		public Map<Puzzle.Order, Integer> maxFillTimes()
 		{
-			return maxFillTime;
+			return Collections.unmodifiableMap(maxFillTimes);
+		}
+
+		//--------------------------------------------------------------
+
+		public int maxFillTime(
+			Puzzle.Order	order)
+		{
+			return maxFillTimes.get(order);
 		}
 
 		//--------------------------------------------------------------

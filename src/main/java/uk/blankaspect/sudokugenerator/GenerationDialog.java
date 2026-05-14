@@ -639,8 +639,8 @@ class GenerationDialog
 						GenerationParams.Subtractive p = (GenerationParams.Subtractive)params;
 						int numEntries = puzzle.hasEntries() ? 0 : p.numEntries(puzzle.puzzleOrder());
 						puzzle.generateSubtractive(p.seed(), numEntries, p.randomiseVerification(), p.numThreads(),
-												   p.maxFillTime(), p.verifyIncrementally(), attemptsCount,
-												   this::isCancelled);
+												   p.maxFillTime(puzzle.puzzleOrder()), p.verifyIncrementally(),
+												   attemptsCount, this::isCancelled);
 						break;
 					}
 				}
@@ -979,7 +979,8 @@ class GenerationDialog
 
 			// Spinner: maximum fill time
 			maxFillTimeSpinner = IntRangeSpinner.leftRightH(HPos.CENTER, true, 0, MAX_FILL_TIMES.length - 1,
-															millisecondsToIndex(params.maxFillTime()), null, index ->
+															millisecondsToIndex(params.maxFillTime(pane.puzzleOrder)),
+															null, index ->
 			{
 				int value = MAX_FILL_TIMES[index];
 				return (value < 0)
@@ -1047,10 +1048,12 @@ class GenerationDialog
 			if (!pane.hasEntries)
 				numEntries.put(pane.puzzleOrder, pane.numEntriesSpinner.getValue());
 
+			Map<Puzzle.Order, Integer> maxFillTimes = new EnumMap<>(params.maxFillTimes());
+			maxFillTimes.put(pane.puzzleOrder, indexToMillseconds(maxFillTimeSpinner.value()));
+
 			return new GenerationParams.Subtractive(
 					numEntries, pane.seed(), pane.randomiseVerificationCheckBox.isSelected(),
-					pane.numThreadsSpinner.getValue(), indexToMillseconds(maxFillTimeSpinner.value()),
-					verifyIncrementallyCheckBox.isSelected());
+					pane.numThreadsSpinner.getValue(), maxFillTimes, verifyIncrementallyCheckBox.isSelected());
 		}
 
 		//--------------------------------------------------------------
