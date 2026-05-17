@@ -173,10 +173,16 @@ class PuzzleDocument
 	//------------------------------------------------------------------
 
 	public PuzzleDocument(
-		Puzzle	puzzle)
+		Puzzle	puzzle,
+		boolean	hasTempName)
 	{
-		// Call alternative constructor
-		this(puzzle, true);
+		// Initialise instance variables
+		this.puzzle = puzzle;
+		editList = new EditList(SudokuGeneratorApp.instance().preferences().editHistoryMaxSize());
+		solutions = Collections.emptyList();
+		solutionIndex = -1;
+		if (hasTempName)
+			tempName = "<" + TEMP_NAME_PREFIX + ++unnamedIndex + ">";
 	}
 
 	//------------------------------------------------------------------
@@ -194,21 +200,6 @@ class PuzzleDocument
 		this.file = file;
 		this.fileKind = fileKind;
 		timestamp = getTimestamp(file);
-	}
-
-	//------------------------------------------------------------------
-
-	private PuzzleDocument(
-		Puzzle	puzzle,
-		boolean	hasTempName)
-	{
-		// Initialise instance variables
-		this.puzzle = puzzle;
-		editList = new EditList(SudokuGeneratorApp.instance().preferences().editHistoryMaxSize());
-		solutions = Collections.emptyList();
-		solutionIndex = -1;
-		if (hasTempName)
-			tempName = "<" + TEMP_NAME_PREFIX + ++unnamedIndex + ">";
 	}
 
 	//------------------------------------------------------------------
@@ -806,18 +797,18 @@ class PuzzleDocument
 
 	public void onGeneratePuzzle()
 	{
-		// If document is template, create provisional document and generate puzzle on it ...
+		// If document is template, create a copy of its puzzle and generate entries for it ...
 		if (fileKind == FileKind.TEMPLATE)
 		{
-			// Create provisional document
-			PuzzleDocument document = new PuzzleDocument(puzzle.puzzleOrder());
+			// Create a copy of this document's puzzle
+			Puzzle template = new Puzzle(puzzle.puzzleOrder(), true);
+			template.setValues(puzzle.entries());
 
-			// Copy puzzle entries from this document to provisional document
-			document.puzzle.setValues(puzzle.entries());
-
-			// Display dialog for generating puzzle; if puzzle was generated, add provisional document to application
-			if (GenerationDialog.show(window(), document.puzzle))
+			// Display dialog for generating puzzle; if puzzle was generated, create document for it and add document to
+			// list
+			if (GenerationDialog.show(window(), template))
 			{
+				PuzzleDocument document = new PuzzleDocument(template, true);
 				document.editList.setChanged();
 				SudokuGeneratorApp.instance().addDocument(document);
 			}

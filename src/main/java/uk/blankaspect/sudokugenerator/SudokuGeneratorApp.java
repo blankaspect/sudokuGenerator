@@ -2957,7 +2957,7 @@ public class SudokuGeneratorApp
 				throw new BaseException(ErrorMsg.NO_TEXT_ON_CLIPBOARD);
 
 			// Create document and add it to list
-			addDocument(new PuzzleDocument(Puzzle.parseText(text)));
+			addDocument(new PuzzleDocument(Puzzle.parseText(text), true));
 		}
 		catch (BaseException e)
 		{

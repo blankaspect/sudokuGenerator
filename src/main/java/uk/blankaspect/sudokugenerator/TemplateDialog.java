@@ -293,15 +293,14 @@ class TemplateDialog
 		// Set style class on root node of scene graph
 		getScene().getRoot().getStyleClass().add(StyleClass.TEMPLATE_DIALOG_ROOT);
 
-		// Create document
+		// Create puzzle
 		Puzzle.Order puzzleOrder = sourcePuzzle.puzzleOrder();
-		PuzzleDocument document = new PuzzleDocument(puzzleOrder);
-		puzzle = document.puzzle();
+		puzzle = new Puzzle(puzzleOrder, true);
 		puzzle.symbols(sourcePuzzle.symbols());
 		puzzle.setValues(sourcePuzzle.entries());
 
 		// Create puzzle pane
-		PuzzlePane puzzlePane = new PuzzlePane(document)
+		PuzzlePane puzzlePane = new PuzzlePane(new PuzzleDocument(puzzle, false))
 		{
 			@Override
 			protected void onGridDoubleClick(
