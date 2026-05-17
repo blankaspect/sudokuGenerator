@@ -60,9 +60,12 @@ span.asterisk {
   padding: 0 0.2em;
 }
 
+table td.center {
+  text-align: center;
+}
+
 table.twoColumnShaded {
-  margin-left: 2.0em;
-  margin-right: 2.0em;
+  margin: 1.0em 2.0em;
 }
 table.twoColumnShaded td {
   border: 1px solid;
