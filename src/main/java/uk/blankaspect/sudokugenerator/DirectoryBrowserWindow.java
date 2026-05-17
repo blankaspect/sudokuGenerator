@@ -1269,16 +1269,16 @@ class DirectoryBrowserWindow
 		/** Keys of properties. */
 		private interface PropertyKey
 		{
-			String	DIRECTORY			= "directory";
-			String	ENABLED				= "enabled";
-			String	FILE_KINDS			= "fileKinds";
-			String	FILTER				= "filter";
-			String	NUM_COLUMNS			= "numColumns";
-			String	NUM_ENTRIES			= "numEntries";
-			String	NUM_ENTRIES_ENABLED	= "numEntriesEnabled";
-			String	NUM_ENTRIES_LINKED	= "numEntriesLinked";
-			String	ORDER				= "order";
-			String	ORDERS				= "orders";
+			String	DIRECTORY	= "directory";
+			String	ENABLED		= "enabled";
+			String	FILE_KINDS	= "fileKinds";
+			String	FILTER		= "filter";
+			String	LINKED		= "linked";
+			String	NUM_COLUMNS	= "numColumns";
+			String	NUM_ENTRIES	= "numEntries";
+			String	ORDER		= "order";
+			String	ORDERS		= "orders";
+			String	RANGE		= "range";
 		}
 
 	////////////////////////////////////////////////////////////////////
@@ -1350,9 +1350,11 @@ class DirectoryBrowserWindow
 				MapNode orderNode = ordersNode.addMap();
 				orderNode.addInt(PropertyKey.ORDER, order.value());
 				orderNode.addBoolean(PropertyKey.ENABLED, orderInfo.orderEnabled);
-				orderNode.addList(PropertyKey.NUM_ENTRIES).addInts(range.lowerEndpoint(), range.upperEndpoint());
-				orderNode.addBoolean(PropertyKey.NUM_ENTRIES_ENABLED, orderInfo.numEntriesEnabled);
-				orderNode.addBoolean(PropertyKey.NUM_ENTRIES_LINKED, orderInfo.numEntriesLinked);
+
+				MapNode numEntriesNode = orderNode.addMap(PropertyKey.NUM_ENTRIES);
+				numEntriesNode.addList(PropertyKey.RANGE).addInts(range.lowerEndpoint(), range.upperEndpoint());
+				numEntriesNode.addBoolean(PropertyKey.ENABLED, orderInfo.numEntriesEnabled);
+				numEntriesNode.addBoolean(PropertyKey.LINKED, orderInfo.numEntriesLinked);
 			}
 
 			// Encode number of columns
@@ -1413,21 +1415,26 @@ class DirectoryBrowserWindow
 
 							IntegerRange range = orderInfo.numEntriesRange;
 							key = PropertyKey.NUM_ENTRIES;
-							if (orderNode.hasList(key))
+							if (orderNode.hasMap(key))
 							{
-								List<IntNode> nodes = orderNode.getListNode(key).intNodes();
-								if (nodes.size() >= 2)
-									range = IntegerRange.of(nodes.get(0).getValue(), nodes.get(1).getValue());
+								MapNode numEntriesNode = orderNode.getMapNode(key);
+								key = PropertyKey.RANGE;
+								if (numEntriesNode.hasList(key))
+								{
+									List<IntNode> nodes = numEntriesNode.getListNode(key).intNodes();
+									if (nodes.size() >= 2)
+										range = IntegerRange.of(nodes.get(0).getValue(), nodes.get(1).getValue());
+								}
+
+								boolean numEntriesEnabled = numEntriesNode.getBoolean(PropertyKey.ENABLED,
+																					  orderInfo.numEntriesEnabled);
+
+								boolean numEntriesLinked = numEntriesNode.getBoolean(PropertyKey.LINKED,
+																					 orderInfo.numEntriesLinked);
+
+								orderInfos.put(order, new Filter.OrderInfo(orderEnabled, range, numEntriesEnabled,
+																		   numEntriesLinked));
 							}
-
-							boolean numEntriesEnabled = orderNode.getBoolean(PropertyKey.NUM_ENTRIES_ENABLED,
-																			 orderInfo.numEntriesEnabled);
-
-							boolean numEntriesLinked = orderNode.getBoolean(PropertyKey.NUM_ENTRIES_LINKED,
-																			orderInfo.numEntriesLinked);
-
-							orderInfos.put(order, new Filter.OrderInfo(orderEnabled, range, numEntriesEnabled,
-																	   numEntriesLinked));
 						}
 					}
 				}
@@ -2157,6 +2164,7 @@ class DirectoryBrowserWindow
 					updateFilter.invoke();
 				});
 				components.rangePane.rangeProperty().addListener(observable -> updateFilter.invoke());
+				components.rangePane.linkButton().selectedProperty().addListener(observable -> updateFilter.invoke());
 				components.update();
 			}
 
