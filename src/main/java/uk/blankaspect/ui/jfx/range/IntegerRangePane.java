@@ -341,8 +341,8 @@ public class IntegerRangePane
 		int maxValue = upperValueFactory.getMax();
 
 		// Set values of spinners to clamped endpoints
-		lowerValueFactory.setValue(clamp(lowerEndpoint, minValue, maxValue));
 		upperValueFactory.setValue(clamp(upperEndpoint, minValue, maxValue));
+		lowerValueFactory.setValue(clamp(lowerEndpoint, minValue, maxValue));
 	}
 
 	//------------------------------------------------------------------
