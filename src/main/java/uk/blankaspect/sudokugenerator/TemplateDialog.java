@@ -208,6 +208,24 @@ class TemplateDialog
 					.cls(StyleClass.TEMPLATE_DIALOG_ROOT)
 					.desc(StyleClass.NUM_ENTRIES_LABEL)
 					.build()
+		),
+		ColourProperty.of
+		(
+			FxProperty.FILL,
+			ColourKey.CLEAR_TEMPLATE_BUTTON_DISC,
+			CssSelector.builder()
+					.cls(StyleClass.TEMPLATE_DIALOG_ROOT)
+					.desc(Icons.StyleClass.CLEAR01_DISC)
+					.build()
+		),
+		ColourProperty.of
+		(
+			FxProperty.STROKE,
+			ColourKey.CLEAR_TEMPLATE_BUTTON_CROSS,
+			CssSelector.builder()
+					.cls(StyleClass.TEMPLATE_DIALOG_ROOT)
+					.desc(Icons.StyleClass.CLEAR01_CROSS)
+					.build()
 		)
 	);
 
