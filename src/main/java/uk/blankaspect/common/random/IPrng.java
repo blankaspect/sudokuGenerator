@@ -148,6 +148,38 @@ public interface IPrng
 	//------------------------------------------------------------------
 
 	/**
+	 * Returns the next Boolean value.
+	 *
+	 * @return the next Boolean value.
+	 */
+
+	default boolean nextBoolean()
+	{
+		return nextUInt() < 0;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
+	 * Returns the next value from an exponential distribution with the specified rate parameter.
+	 *
+	 * @param  lambda
+	 *           the rate parameter of the exponential distribution.
+	 * @return the next value from an exponential distribution whose rate parameter is {@code lambda}.
+	 */
+
+	default double nextExponential(
+		double	lambda)
+	{
+		double x = 0.0;
+		while (x == 0.0)
+			x = nextDouble();
+		return StrictMath.log(x) / -lambda;
+	}
+
+	//------------------------------------------------------------------
+
+	/**
 	 * Returns an array containing a random permutation of the specified number of zero-based indices.
 	 *
 	 * @param  numIndices
