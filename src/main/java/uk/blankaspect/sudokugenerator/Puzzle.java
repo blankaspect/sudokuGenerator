@@ -383,7 +383,7 @@ class Puzzle
 		String	text)
 		throws BaseException
 	{
-		// Define record for line of text
+		// Declare record for line of text
 		record Line(
 			int		index,
 			String	text)

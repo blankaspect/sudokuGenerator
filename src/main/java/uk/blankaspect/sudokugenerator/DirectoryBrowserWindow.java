@@ -2066,7 +2066,7 @@ class DirectoryBrowserWindow
 			// Initialise row index
 			int row = 0;
 
-			// Define record for order-related components
+			// Declare record for order-related components
 			record OrderComponents(
 				CheckBox			orderCheckBox,
 				CheckBox			numEntriesCheckBox,
