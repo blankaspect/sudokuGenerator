@@ -212,19 +212,19 @@ class TemplateDialog
 		ColourProperty.of
 		(
 			FxProperty.FILL,
-			ColourKey.CLEAR_TEMPLATE_BUTTON_DISC,
+			ColourKey.CLEAR_TEMPLATE_BUTTON_BACKGROUND,
 			CssSelector.builder()
 					.cls(StyleClass.TEMPLATE_DIALOG_ROOT)
-					.desc(Icons.StyleClass.CLEAR01_DISC)
+					.desc(Icons.StyleClass.CLEAR01_BACKGROUND)
 					.build()
 		),
 		ColourProperty.of
 		(
 			FxProperty.STROKE,
-			ColourKey.CLEAR_TEMPLATE_BUTTON_CROSS,
+			ColourKey.CLEAR_TEMPLATE_BUTTON_FOREGROUND,
 			CssSelector.builder()
 					.cls(StyleClass.TEMPLATE_DIALOG_ROOT)
-					.desc(Icons.StyleClass.CLEAR01_CROSS)
+					.desc(Icons.StyleClass.CLEAR01_FOREGROUND)
 					.build()
 		)
 	);
@@ -243,13 +243,13 @@ class TemplateDialog
 	{
 		String	PREFIX	= StyleManager.colourKeyPrefix(MethodHandles.lookup().lookupClass().getEnclosingClass());
 
-		String	CLEAR_TEMPLATE_BUTTON_CROSS		= PREFIX + "clearTemplateButton.cross";
-		String	CLEAR_TEMPLATE_BUTTON_DISC		= PREFIX + "clearTemplateButton.disc";
-		String	GRAPHIC_BUTTON_BORDER			= PREFIX + "graphicButton.border";
-		String	GRAPHIC_BUTTON_ICON				= PREFIX + "graphicButton.icon";
-		String	NUM_ENTRIES_LABEL_BACKGROUND	= PREFIX + "numEntriesLabel.background";
-		String	NUM_ENTRIES_LABEL_BORDER		= PREFIX + "numEntriesLabel.border";
-		String	NUM_ENTRIES_LABEL_TEXT			= PREFIX + "numEntriesLabel.text";
+		String	CLEAR_TEMPLATE_BUTTON_BACKGROUND	= PREFIX + "clearTemplateButton.background";
+		String	CLEAR_TEMPLATE_BUTTON_FOREGROUND	= PREFIX + "clearTemplateButton.foreground";
+		String	GRAPHIC_BUTTON_BORDER				= PREFIX + "graphicButton.border";
+		String	GRAPHIC_BUTTON_ICON					= PREFIX + "graphicButton.icon";
+		String	NUM_ENTRIES_LABEL_BACKGROUND		= PREFIX + "numEntriesLabel.background";
+		String	NUM_ENTRIES_LABEL_BORDER			= PREFIX + "numEntriesLabel.border";
+		String	NUM_ENTRIES_LABEL_TEXT				= PREFIX + "numEntriesLabel.text";
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -460,8 +460,8 @@ class TemplateDialog
 		addButton(nextTemplateButton, HPos.LEFT, false);
 
 		// Button: clear template
-		Group clearIcon = Icons.clear01(getColour(ColourKey.CLEAR_TEMPLATE_BUTTON_DISC),
-										getColour(ColourKey.CLEAR_TEMPLATE_BUTTON_CROSS),
+		Group clearIcon = Icons.clear01(getColour(ColourKey.CLEAR_TEMPLATE_BUTTON_BACKGROUND),
+										getColour(ColourKey.CLEAR_TEMPLATE_BUTTON_FOREGROUND),
 										0.8, 1.0);
 		GraphicButton clearTemplateButton =
 				graphicButtonFactory.invoke(clearIcon, Command.CLEAR_TEMPLATE.tooltipText());

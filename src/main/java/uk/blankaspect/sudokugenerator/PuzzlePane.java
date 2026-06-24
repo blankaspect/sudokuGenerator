@@ -132,19 +132,19 @@ class PuzzlePane
 		ColourProperty.of
 		(
 			FxProperty.FILL,
-			ColourKey.CLEAR_CELL_ICON_DISC,
+			ColourKey.CLEAR_CELL_ICON_BACKGROUND,
 			CssSelector.builder()
 					.cls(StyleClass.VALUE_SELECTION_PANE)
-					.desc(Icons.StyleClass.CLEAR01_DISC)
+					.desc(Icons.StyleClass.CLEAR01_BACKGROUND)
 					.build()
 		),
 		ColourProperty.of
 		(
 			FxProperty.STROKE,
-			ColourKey.CLEAR_CELL_ICON_CROSS,
+			ColourKey.CLEAR_CELL_ICON_FOREGROUND,
 			CssSelector.builder()
 					.cls(StyleClass.VALUE_SELECTION_PANE)
-					.desc(Icons.StyleClass.CLEAR01_CROSS)
+					.desc(Icons.StyleClass.CLEAR01_FOREGROUND)
 					.build()
 		),
 		ColourProperty.of
@@ -232,8 +232,8 @@ class PuzzlePane
 		String	VALUE_SELECTOR_TEXT						= PREFIX + "valueSelector.text";
 		String	VALUE_SELECTOR_TEXT_DISABLED			= PREFIX + "valueSelector.text.disabled";
 
-		String	CLEAR_CELL_ICON_CROSS					= PREFIX + "clearCellIcon.cross";
-		String	CLEAR_CELL_ICON_DISC					= PREFIX + "clearCellIcon.disc";
+		String	CLEAR_CELL_ICON_BACKGROUND				= PREFIX + "clearCellIcon.background";
+		String	CLEAR_CELL_ICON_FOREGROUND				= PREFIX + "clearCellIcon.foreground";
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -1189,8 +1189,8 @@ class PuzzlePane
 				if (cellValue > 0)
 				{
 					// Create 'clear cell' icon
-					Group clearIcon = Icons.clear01(getColour(ColourKey.CLEAR_CELL_ICON_DISC),
-													getColour(ColourKey.CLEAR_CELL_ICON_CROSS));
+					Group clearIcon = Icons.clear01(getColour(ColourKey.CLEAR_CELL_ICON_BACKGROUND),
+													getColour(ColourKey.CLEAR_CELL_ICON_FOREGROUND));
 
 					// Create 'clear cell' pane
 					StackPane clearCellPane = new StackPane(clearIcon);
