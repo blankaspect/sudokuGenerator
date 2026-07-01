@@ -67,6 +67,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 
+import javafx.scene.Group;
 import javafx.scene.Scene;
 
 import javafx.scene.control.Button;
@@ -169,6 +170,8 @@ import uk.blankaspect.ui.jfx.dialog.TextOutputTaskDialog;
 
 import uk.blankaspect.ui.jfx.exec.ExecUtils;
 
+import uk.blankaspect.ui.jfx.icon.Icons;
+
 import uk.blankaspect.ui.jfx.image.ImageData;
 import uk.blankaspect.ui.jfx.image.MessageIcon32;
 
@@ -265,9 +268,6 @@ public class SudokuGeneratorApp
 
 	/** The prototype text for the puzzle spinner. */
 	private static final	String	PUZZLE_SPINNER_PROTOTYPE_TEXT	= "0".repeat(32);
-
-	/** The logical size of the <i>cross</i> icon. */
-	private static final	double	CROSS_ICON_SIZE	= TextUtils.textHeight();
 
 	/** The padding around the puzzle-selection pane. */
 	private static final	Insets	PUZZLE_SELECTION_PANE_PADDING	= new Insets(4.0, 6.0, 4.0, 6.0);
@@ -394,11 +394,20 @@ public class SudokuGeneratorApp
 		),
 		ColourProperty.of
 		(
-			FxProperty.STROKE,
-			ColourKey.PUZZLE_SELECTION_PANE_CROSS_ICON,
+			FxProperty.FILL,
+			ColourKey.PUZZLE_SELECTION_PANE_CLEAR_ICON_BACKGROUND,
 			CssSelector.builder()
 					.id(StyleConstants.NodeId.APP_MAIN_ROOT)
-					.desc(StyleClass.PUZZLE_SELECTION_PANE_CROSS_ICON)
+					.desc(Icons.StyleClass.CLEAR01_BACKGROUND)
+					.build()
+		),
+		ColourProperty.of
+		(
+			FxProperty.STROKE,
+			ColourKey.PUZZLE_SELECTION_PANE_CLEAR_ICON_FOREGROUND,
+			CssSelector.builder()
+					.id(StyleConstants.NodeId.APP_MAIN_ROOT)
+					.desc(Icons.StyleClass.CLEAR01_FOREGROUND)
 					.build()
 		),
 		ColourProperty.of
@@ -462,11 +471,10 @@ public class SudokuGeneratorApp
 	/** CSS style classes. */
 	private interface StyleClass
 	{
-		String	PUZZLE_SELECTION_PANE				= StyleConstants.CLASS_PREFIX + "puzzle-selection-pane";
-		String	PUZZLE_SELECTION_PANE_CROSS_ICON	= PUZZLE_SELECTION_PANE + "-cross-icon";
-		String	SOLUTION_BUTTON_ICON				= StyleConstants.CLASS_PREFIX + "solution-button-icon";
-		String	SOLUTION_INFO_PANE					= StyleConstants.CLASS_PREFIX + "solution-info-pane";
-		String	STATUS_PANE							= StyleConstants.CLASS_PREFIX + "status-pane";
+		String	PUZZLE_SELECTION_PANE	= StyleConstants.CLASS_PREFIX + "puzzle-selection-pane";
+		String	SOLUTION_BUTTON_ICON	= StyleConstants.CLASS_PREFIX + "solution-button-icon";
+		String	SOLUTION_INFO_PANE		= StyleConstants.CLASS_PREFIX + "solution-info-pane";
+		String	STATUS_PANE				= StyleConstants.CLASS_PREFIX + "status-pane";
 	}
 
 	/** Keys of colours that are used in colour properties. */
@@ -474,13 +482,14 @@ public class SudokuGeneratorApp
 	{
 		String	PREFIX	= StyleManager.colourKeyPrefix(MethodHandles.lookup().lookupClass().getEnclosingClass());
 
-		String	PUZZLE_SELECTION_PANE_BACKGROUND	= PREFIX + "puzzleSelectionPane.background";
-		String	PUZZLE_SELECTION_PANE_BORDER		= PREFIX + "puzzleSelectionPane.border";
-		String	PUZZLE_SELECTION_PANE_CROSS_ICON	= PREFIX + "puzzleSelectionPane.crossIcon";
-		String	SOLUTION_BUTTON_BORDER				= PREFIX + "solutionButton.border";
-		String	SOLUTION_BUTTON_ICON				= PREFIX + "solutionButton.icon";
-		String	STATUS_PANE_BACKGROUND				= PREFIX + "statusPane.background";
-		String	STATUS_PANE_BORDER					= PREFIX + "statusPane.border";
+		String	PUZZLE_SELECTION_PANE_BACKGROUND			= PREFIX + "puzzleSelectionPane.background";
+		String	PUZZLE_SELECTION_PANE_BORDER				= PREFIX + "puzzleSelectionPane.border";
+		String	PUZZLE_SELECTION_PANE_CLEAR_ICON_BACKGROUND	= PREFIX + "puzzleSelectionPane.clearIcon.background";
+		String	PUZZLE_SELECTION_PANE_CLEAR_ICON_FOREGROUND	= PREFIX + "puzzleSelectionPane.clearIcon.foreground";
+		String	SOLUTION_BUTTON_BORDER						= PREFIX + "solutionButton.border";
+		String	SOLUTION_BUTTON_ICON						= PREFIX + "solutionButton.icon";
+		String	STATUS_PANE_BACKGROUND						= PREFIX + "statusPane.background";
+		String	STATUS_PANE_BORDER							= PREFIX + "statusPane.border";
 	}
 
 	/** Keys of properties. */
@@ -502,13 +511,13 @@ public class SudokuGeneratorApp
 		String	MAIN_WINDOW					= "mainWindow";
 		String	MAX_SIZE					= "maxSize";
 		String	OPEN_PUZZLE_DIRECTORY		= "openPuzzleDirectory";
-		String	OPEN_TEMPLATE_DIRECTORY		= "openTemplateDirectory";
 		String	OPEN_PUZZLE_FILE_KIND		= "openPuzzleFileKind";
+		String	OPEN_TEMPLATE_DIRECTORY		= "openTemplateDirectory";
 		String	OPEN_TEMPLATE_FILE_KIND		= "openTemplateFileKind";
 		String	PUZZLE						= "puzzle";
 		String	SAVE_PUZZLE_DIRECTORY		= "savePuzzleDirectory";
-		String	SAVE_TEMPLATE_DIRECTORY		= "saveTemplateDirectory";
 		String	SAVE_PUZZLE_FILE_KIND		= "savePuzzleFileKind";
+		String	SAVE_TEMPLATE_DIRECTORY		= "saveTemplateDirectory";
 		String	SAVE_TEMPLATE_FILE_KIND		= "saveTemplateFileKind";
 		String	SOLUTION_DIALOG				= "solutionDialog";
 		String	SYMBOLS						= "symbols";
@@ -948,10 +957,9 @@ public class SudokuGeneratorApp
 		});
 
 		// Button: close puzzle
-		Shape crossIcon = Shapes.cross01(CROSS_ICON_SIZE);
-		crossIcon.setStroke(getColour(ColourKey.PUZZLE_SELECTION_PANE_CROSS_ICON));
-		crossIcon.getStyleClass().add(StyleClass.PUZZLE_SELECTION_PANE_CROSS_ICON);
-		closeButton = new GraphicButton(Shapes.tile(crossIcon), CLOSE_PUZZLE1_STR);
+		Group clearIcon = Icons.clear01(getColour(ColourKey.PUZZLE_SELECTION_PANE_CLEAR_ICON_BACKGROUND),
+										getColour(ColourKey.PUZZLE_SELECTION_PANE_CLEAR_ICON_FOREGROUND));
+		closeButton = new GraphicButton(clearIcon, CLOSE_PUZZLE1_STR);
 		closeButton.setDisable(true);
 		closeButton.setOnAction(event -> onClosePuzzle());
 
