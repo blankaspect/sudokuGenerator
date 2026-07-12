@@ -940,9 +940,9 @@
       <h4 id="section5-2-4">5.2.4&nbsp; <span class="command">Edit &gt; Preferences</span></h4>
       <p class="wrap">
         The <span class="command">Preferences</span> command displays a modal dialog in which
-        the <a href="#section6">user preferences</a> of SudokuGenerator can be edited.  By default, the preferences are
-        stored in a <a href="#section3">configuration file</a>.  The use of a configuration file
-        can be <a href="#section3-2">disabled</a>.
+        the <a href="#section6">user preferences</a> of SudokuGenerator can be edited.  By
+        default, the preferences are stored in a <a href="#section3">configuration file</a>.
+        The use of a configuration file can be <a href="#section3-2">disabled</a>.
       </p>
 
       <h3 id="section5-3">5.3&nbsp; <span class="component">View</span> menu</h3>
@@ -2109,17 +2109,18 @@
         experience: the shrinking of a window, which is the observable symptom of the problem,
         versus the unpleasant visual effect of moving the window after it has appeared on the
         screen.  The default values were determined by experiment on a single machine running
-        Ubuntu.  They may not be appropriate for other machines and systems, so the delays have
-        been exposed as system properties so that users can modify them.  The property values
-        are expected to be integers and the units are milliseconds.
+        Ubuntu.  Because the delays may not be appropriate for other machines and systems, they
+        have been exposed as system properties to allow users to modify them.  The property
+        values are expected to be integers and the units are milliseconds.
       </p>
       <p class="wrap">
-        Although the problem is not present in JavaFX on Windows, the same set of delays are
-        applied to simplify the code.  This was deemed acceptable because the unpleasant effect
-        of moving a visible window is avoided by setting the opacity of the window to 0 before
-        it is shown, then setting the opacity to 1 after the size and location of the window
-        have been changed.  Sadly, the same trick doesn&apos;t work on Linux/GNOME because it
-        seems that GNOME doesn&apos;t allow the opacity of a window to be changed.
+        Although the problem is not present in JavaFX on Windows, the same set of delays is
+        applied in order to simplify the code.  This was deemed acceptable because the
+        unpleasant effect of moving a visible window is avoided by setting the opacity of the
+        window to 0 before it is shown, then setting the opacity to 1 after the size and
+        location of the window have been changed.  Sadly, the same trick doesn&apos;t work on
+        Linux/GNOME because it seems that GNOME doesn&apos;t allow the opacity of a window to be
+        changed.
       </p>
 
     </div>
@@ -2443,7 +2444,7 @@ D..  ..C  ...
     <div id="lastModified">
       <div>
         <div>
-          Last modified: 2026-05-19
+          Last modified: 2026-07-12
         </div>
         <div class="image">
           <a class="hideHover" href="https://validator.w3.org/check?uri=referer">
